@@ -667,8 +667,14 @@
         if (!rawText) return;
 
         try {
+            // Remove markdown code blocks
             let cleaned = rawText.replace(/```json/g, '').replace(/```javascript/g, '').replace(/```/g, '').trim();
-            let newBatch = eval('(' + cleaned + ')');
+            
+            // AUTOMATIC SYNTAX CLEANER: Remove common AI trailing commas before brackets or braces
+            cleaned = cleaned.replace(/,\s*([\]}])/g, '$1');
+
+            // Parse JSON safely
+            let newBatch = JSON.parse(cleaned);
 
             if (Array.isArray(newBatch)) {
                 let existingSaved = JSON.parse(localStorage.getItem('custom_em_cards') || '[]');
