@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THE NO REMEDIAL REVIEW ^^</title>
+    <!-- LINK TO YOUR EXTERNAL CASES.JS FILE -->
+    <script src="cases.js"></script>
     <style>
         :root {
             --bg-main: #f8fafc;
@@ -99,110 +101,6 @@
             gap: 10px;
             flex-wrap: wrap;
         }
-        .btn-group {
-            display: flex;
-            gap: 8px;
-        }
-        .add-btn {
-            background-color: var(--success);
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: background 0.2s;
-        }
-        .add-btn:hover { background-color: #059669; }
-        .manage-btn {
-            background-color: #64748b;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: background 0.2s;
-        }
-        .manage-btn:hover { background-color: #475569; }
-
-        /* Modals */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(2px);
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-        .modal-card {
-            background: var(--surface);
-            width: 90%;
-            max-width: 700px;
-            max-height: 85vh;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            overflow: hidden;
-        }
-        .modal-card textarea {
-            width: 100%;
-            height: 160px;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            font-family: monospace;
-            font-size: 0.85rem;
-            resize: vertical;
-        }
-        .question-list-manage {
-            overflow-y: auto;
-            max-height: 45vh;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding-right: 5px;
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            padding-top: 10px;
-            padding-bottom: 10px;
-        }
-        .manage-item {
-            background: #f8fafc;
-            border: 1px solid var(--border);
-            padding: 10px 12px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .manage-controls-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f1f5f9;
-            padding: 10px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-        }
-        .delete-btn-bulk {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.8rem;
-        }
-        .delete-btn-bulk:hover { background: #dc2626; }
 
         .config-card {
             background: var(--surface);
@@ -233,7 +131,7 @@
         }
 
         .topic-grid-container {
-            max-height: 40vh;
+            max-height: 45vh;
             overflow-y: auto;
             padding-right: 5px;
             display: grid;
@@ -409,11 +307,7 @@
             <div class="menu-top-bar">
                 <div>
                     <h2 style="color: var(--text-main); margin: 0 0 4px 0; font-size: 1.3rem;">Select Assessment Module</h2>
-                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Choose a category, add new questions, or bulk delete items.</p>
-                </div>
-                <div class="btn-group">
-                    <button class="manage-btn" onclick="openManageModal()">🗑️ Manage & Bulk Delete</button>
-                    <button class="add-btn" onclick="openAddModal()">➕ Add Questions</button>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Loaded directly from external cases.js file.</p>
                 </div>
             </div>
             
@@ -435,57 +329,10 @@
         </div>
     </div>
 
-    <!-- MODAL FOR ADDING QUESTIONS -->
-    <div class="modal-overlay" id="add-modal">
-        <div class="modal-card">
-            <h3 style="margin:0; color:var(--text-main);">Paste New Questions (JSON Format)</h3>
-            <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Paste your question array below:</p>
-            <textarea id="json-input" placeholder='[
-  {
-    "type": "MCQ",
-    "category": "Cardiology",
-    "scenario": "Patient vignette...",
-    "options": ["A) ...", "B) ...", "C) ...", "D) ..."],
-    "correct": 1,
-    "explanation": "Brief rationale...",
-    "lecture": "Deep dive lecture notes..."
-  }
-]'></textarea>
-            <div style="display:flex; justify-content:flex-end; gap:10px;">
-                <button class="btn" onclick="closeAddModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="importQuestions()">Save & Import</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL FOR BULK MANAGING / DELETING QUESTIONS -->
-    <div class="modal-overlay" id="manage-modal">
-        <div class="modal-card">
-            <h3 style="margin:0; color:var(--text-main);">Manage & Bulk Delete Questions</h3>
-            <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Delete entire categories or select multiple questions to delete in one go:</p>
-            
-            <div class="manage-controls-bar">
-                <div>
-                    <input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this)"> 
-                    <label for="select-all-checkbox" style="font-weight:600; cursor:pointer;">Select All Custom Items</label>
-                </div>
-                <button class="delete-btn-bulk" onclick="deleteSelectedQuestions()">🗑️ Delete Selected</button>
-            </div>
-
-            <div class="question-list-manage" id="manage-list-container">
-                <!-- Dynamically populated -->
-            </div>
-
-            <div style="display:flex; justify-content:flex-end;">
-                <button class="btn btn-primary" onclick="closeManageModal()">Done</button>
-            </div>
-        </div>
-    </div>
-
     <!-- EXAM SPLIT-SCREEN WORKSPACE -->
     <div id="exam-screen">
         <div class="exam-nav-bar">
-            <div><strong>Module:</strong> <span id="current-category-label" style="color: var(--primary); font-weight: 600;">Toxicology</span></div>
+            <div><strong>Module:</strong> <span id="current-category-label" style="color: var(--primary); font-weight: 600;">Topic</span></div>
             <div class="palette-pills" id="palette-pills"></div>
             <div>Attempted: <span id="attempted-count">0</span>/<span id="total-count">0</span></div>
         </div>
@@ -528,17 +375,11 @@
     </div>
 
 <script>
-    function loadQuestionBank() {
-        let savedCards = localStorage.getItem('custom_em_cards');
-        if (savedCards) {
-            try {
-                return JSON.parse(savedCards);
-            } catch(e) { console.error("Error loading saved cards", e); }
-        }
-        return [];
+    // Safeguard check for cases.js
+    if (typeof masterCards === 'undefined') {
+        alert("Error: cases.js could not be loaded. Ensure cases.js is in the exact same folder as index.html.");
     }
 
-    let activeMasterCards = loadQuestionBank();
     let currentCards = [];
     let currentIndex = 0;
     let answeredState = {}; 
@@ -551,9 +392,6 @@
     const examScreen = document.getElementById('exam-screen');
     const topicGrid = document.getElementById('topic-grid');
     const palettePills = document.getElementById('palette-pills');
-    const addModal = document.getElementById('add-modal');
-    const manageModal = document.getElementById('manage-modal');
-    const manageListContainer = document.getElementById('manage-list-container');
 
     const questionNumberEl = document.getElementById('question-number');
     const typeBadgeEl = document.getElementById('card-type-badge');
@@ -568,90 +406,6 @@
     const attemptedCountEl = document.getElementById('attempted-count');
     const totalCountEl = document.getElementById('total-count');
 
-    function openAddModal() { addModal.style.display = 'flex'; }
-    function closeAddModal() { addModal.style.display = 'none'; }
-
-    function openManageModal() {
-        renderManageList();
-        manageModal.style.display = 'flex';
-    }
-    function closeManageModal() { 
-        manageModal.style.display = 'none'; 
-        initTopicMenu();
-    }
-
-    function renderManageList() {
-        let savedCards = JSON.parse(localStorage.getItem('custom_em_cards') || '[]');
-        manageListContainer.innerHTML = '';
-
-        if (savedCards.length === 0) {
-            manageListContainer.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem; text-align:center; padding:20px;">No questions added yet. Use "Add Questions" to inject items!</p>';
-            return;
-        }
-
-        let categories = {};
-        savedCards.forEach((card, originalIdx) => {
-            let cat = card.category || "Uncategorized";
-            if (!categories[cat]) categories[cat] = [];
-            categories[cat].push({ card, originalIdx });
-        });
-
-        for (const [catName, items] of Object.entries(categories)) {
-            const catHeader = document.createElement('div');
-            catHeader.style.cssText = "background: #e2e8f0; padding: 6px 10px; font-weight: 700; font-size: 0.85rem; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; margin-top: 5px;";
-            catHeader.innerHTML = `
-                <span>📁 ${catName} (${items.length} items)</span>
-                <button style="background:#ef4444; color:white; border:none; padding:2px 8px; border-radius:3px; cursor:pointer; font-size:0.75rem;" onclick="deleteCategory('${catName}')">Delete Entire Category</button>
-            `;
-            manageListContainer.appendChild(catHeader);
-
-            items.forEach(({ card, originalIdx }) => {
-                const item = document.createElement('div');
-                item.className = 'manage-item';
-                item.innerHTML = `
-                    <input type="checkbox" class="question-checkbox" data-index="${originalIdx}">
-                    <div style="font-size:0.85rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:430px;">
-                        ${card.scenario}
-                    </div>
-                `;
-                manageListContainer.appendChild(item);
-            });
-        }
-    }
-
-    function toggleSelectAll(source) {
-        checkboxes = document.querySelectorAll('.question-checkbox');
-        checkboxes.forEach(cb => cb.checked = source.checked);
-    }
-
-    function deleteSelectedQuestions() {
-        let checkboxes = document.querySelectorAll('.question-checkbox:checked');
-        if (checkboxes.length === 0) {
-            alert("Please select at least one question to delete.");
-            return;
-        }
-
-        if (!confirm(`Are you sure you want to delete ${checkboxes.length} selected questions?`)) return;
-
-        let indicesToDelete = Array.from(checkboxes).map(cb => parseInt(cb.getAttribute('data-index')));
-        let savedCards = JSON.parse(localStorage.getItem('custom_em_cards') || '[]');
-        
-        let updatedCards = savedCards.filter((_, idx) => !indicesToDelete.includes(idx));
-        localStorage.setItem('custom_em_cards', JSON.stringify(updatedCards));
-        
-        document.getElementById('select-all-checkbox').checked = false;
-        renderManageList();
-    }
-
-    function deleteCategory(catName) {
-        if (!confirm(`Are you sure you want to delete ALL questions under category "${catName}"?`)) return;
-        let savedCards = JSON.parse(localStorage.getItem('custom_em_cards') || '[]');
-        
-        let updatedCards = savedCards.filter(card => card.category !== catName);
-        localStorage.setItem('custom_em_cards', JSON.stringify(updatedCards));
-        renderManageList();
-    }
-
     function toggleLecture() {
         if (lectureContentEl.classList.contains('expanded')) {
             lectureContentEl.classList.remove('expanded');
@@ -659,38 +413,6 @@
         } else {
             lectureContentEl.classList.add('expanded');
             lectureToggleBtn.innerText = "📖 Collapse Lecture Notes";
-        }
-    }
-
-    function importQuestions() {
-        const rawText = document.getElementById('json-input').value.trim();
-        if (!rawText) return;
-
-        try {
-            // Remove markdown code blocks
-            let cleaned = rawText.replace(/```json/g, '').replace(/```javascript/g, '').replace(/```/g, '').trim();
-            
-            // AUTOMATIC SYNTAX CLEANER: Remove common AI trailing commas before brackets or braces
-            cleaned = cleaned.replace(/,\s*([\]}])/g, '$1');
-
-            // Parse JSON safely
-            let newBatch = JSON.parse(cleaned);
-
-            if (Array.isArray(newBatch)) {
-                let existingSaved = JSON.parse(localStorage.getItem('custom_em_cards') || '[]');
-                let combinedSaved = existingSaved.concat(newBatch);
-                localStorage.setItem('custom_em_cards', JSON.stringify(combinedSaved));
-                
-                activeMasterCards = loadQuestionBank();
-                initTopicMenu();
-                closeAddModal();
-                document.getElementById('json-input').value = '';
-                alert(`Successfully imported ${newBatch.length} new questions!`);
-            } else {
-                alert("Error: The pasted text must be an array of question objects [ { ... } ].");
-            }
-        } catch(err) {
-            alert("Parsing Error: Please check your syntax. Details: " + err.message);
         }
     }
 
@@ -734,20 +456,20 @@
     }
 
     function initTopicMenu() {
-        activeMasterCards = loadQuestionBank();
+        if (typeof masterCards === 'undefined') return;
         const counts = {};
-        activeMasterCards.forEach(c => counts[c.category] = (counts[c.category] || 0) + 1);
+        masterCards.forEach(c => counts[c.category] = (counts[c.category] || 0) + 1);
 
         topicGrid.innerHTML = '';
         
-        if (activeMasterCards.length === 0) {
-            topicGrid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:30px; color:var(--text-muted);"><h3>No questions loaded yet!</h3><p>Click "Add Questions" above to paste your question batches.</p></div>';
+        if (masterCards.length === 0) {
+            topicGrid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:30px; color:var(--text-muted);"><h3>cases.js is empty!</h3><p>Add your question objects inside cases.js.</p></div>';
             return;
         }
 
         let allCard = document.createElement('div');
         allCard.className = 'topic-card all-topics-card';
-        allCard.innerHTML = `<span class="topic-card-title">🌟 Comprehensive Exam (All Topics)</span><span class="topic-card-badge">${activeMasterCards.length} Questions</span>`;
+        allCard.innerHTML = `<span class="topic-card-title">🌟 Comprehensive Exam (All Topics)</span><span class="topic-card-badge">${masterCards.length} Questions</span>`;
         allCard.onclick = () => startExam("All");
         topicGrid.appendChild(allCard);
 
@@ -761,7 +483,7 @@
     }
 
     function startExam(topic) {
-        currentCards = topic === "All" ? [...activeMasterCards] : activeMasterCards.filter(c => c.category === topic);
+        currentCards = topic === "All" ? [...masterCards] : masterCards.filter(c => c.category === topic);
         if (currentCards.length === 0) {
             alert("No questions found in this category.");
             return;
