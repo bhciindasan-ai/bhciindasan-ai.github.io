@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THE NO REMEDIAL REVIEW ^^</title>
-    <!-- LINK TO YOUR EXTERNAL CASES.JS FILE -->
-    <script src="cases.js"></script>
     <style>
         :root {
             --bg-main: #f8fafc;
@@ -101,6 +99,123 @@
             gap: 10px;
             flex-wrap: wrap;
         }
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .add-btn {
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+        .add-btn:hover { background-color: #059669; }
+        .manage-btn {
+            background-color: #64748b;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+        .manage-btn:hover { background-color: #475569; }
+        .sync-btn {
+            background-color: #8b5cf6;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+        .sync-btn:hover { background-color: #7c3aed; }
+
+        /* Modals */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(2px);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-card {
+            background: var(--surface);
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow: hidden;
+        }
+        .modal-card textarea {
+            width: 100%;
+            height: 160px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-family: monospace;
+            font-size: 0.85rem;
+            resize: vertical;
+        }
+        .question-list-manage {
+            overflow-y: auto;
+            max-height: 45vh;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 5px;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        .manage-item {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 10px 12px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .manage-controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f1f5f9;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+        .delete-btn-bulk {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .delete-btn-bulk:hover { background: #dc2626; }
 
         .config-card {
             background: var(--surface);
@@ -131,7 +246,7 @@
         }
 
         .topic-grid-container {
-            max-height: 45vh;
+            max-height: 40vh;
             overflow-y: auto;
             padding-right: 5px;
             display: grid;
@@ -307,7 +422,12 @@
             <div class="menu-top-bar">
                 <div>
                     <h2 style="color: var(--text-main); margin: 0 0 4px 0; font-size: 1.3rem;">Select Assessment Module</h2>
-                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Loaded directly from external cases.js file.</p>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Standalone app. All questions are stored securely in browser memory.</p>
+                </div>
+                <div class="btn-group">
+                    <button class="sync-btn" onclick="exportQuestionsFile()" title="Download a backup file to share with your phone">📥 Export Backup</button>
+                    <button class="manage-btn" onclick="openManageModal()">🗑️ Manage / Delete</button>
+                    <button class="add-btn" onclick="openAddModal()">➕ Add Questions</button>
                 </div>
             </div>
             
@@ -326,6 +446,51 @@
             </div>
 
             <div class="topic-grid-container" id="topic-grid"></div>
+        </div>
+    </div>
+
+    <!-- MODAL FOR ADDING QUESTIONS -->
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal-card">
+            <h3 style="margin:0; color:var(--text-main);">Paste New Questions (JSON Format)</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Paste your question array below:</p>
+            <textarea id="json-input" placeholder='[
+  {
+    "type": "MCQ",
+    "category": "Emergency Medical Services",
+    "scenario": "Patient vignette...",
+    "options": ["A) ...", "B) ...", "C) ...", "D) ..."],
+    "correct": 1,
+    "explanation": "Brief rationale...",
+    "lecture": "Deep dive lecture notes..."
+  }
+]'></textarea>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button class="btn" onclick="closeAddModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="importQuestions()">Save & Import</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FOR MANAGING / DELETING QUESTIONS -->
+    <div class="modal-overlay" id="manage-modal">
+        <div class="modal-card">
+            <h3 style="margin:0; color:var(--text-main);">Manage & Bulk Delete Questions</h3>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Delete entire categories or select multiple questions to delete:</p>
+            
+            <div class="manage-controls-bar">
+                <div>
+                    <input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this)"> 
+                    <label for="select-all-checkbox" style="font-weight:600; cursor:pointer;">Select All Items</label>
+                </div>
+                <button class="delete-btn-bulk" onclick="deleteSelectedQuestions()">🗑️ Delete Selected</button>
+            </div>
+
+            <div class="question-list-manage" id="manage-list-container"></div>
+
+            <div style="display:flex; justify-content:flex-end;">
+                <button class="btn btn-primary" onclick="closeManageModal()">Done</button>
+            </div>
         </div>
     </div>
 
@@ -375,11 +540,65 @@
     </div>
 
 <script>
-    // Safeguard check for cases.js
-    if (typeof masterCards === 'undefined') {
-        alert("Error: cases.js could not be loaded. Ensure cases.js is in the exact same folder as index.html.");
+    // Initial 20 EMS Questions built right in so it works instantly out of the box
+    const initialMasterCards = [
+      {
+        "type": "MCQ",
+        "category": "Emergency Medical Services",
+        "scenario": "A 58-year-old male collapses while playing badminton at a community athletic club in Pasig City. Bystanders initiate chest compressions, and local emergency responders arrive within 4 minutes equipped with an automated external defibrillator (AED). Tracing confirms coarse ventricular fibrillation. Responders deliver a single shock and immediately resume high-quality CPR. Which historical milestone first demonstrated that bringing electrical defibrillation and advanced cardiac care directly to patients in the prehospital setting significantly reduces mortality from acute myocardial infarction?",
+        "options": [
+          "A) The 1966 National Academy of Sciences report 'Accidental Death and Disability: The Neglected Disease of Modern Society'",
+          "B) J. Frank Pantridge's deployment of a physician-staffed mobile coronary care unit in Belfast in 1967",
+          "C) The passage of the United States EMS Systems Act of 1973",
+          "D) The Omnibus Budget Reconciliation Act of 1981"
+        ],
+        "correct": 1,
+        "explanation": "Correct Answer: B. In 1967, J. F. Pantridge introduced a physician-staffed mobile coronary care unit in Belfast, Northern Ireland, proving that extending cardiac care and defibrillation into the prehospital phase significantly reduces mortality among acute myocardial infarction patients.",
+        "lecture": "📖 Deep-Dive Lecture Notes: Evolution of Prehospital Emergency Cardiac Care\n\n• The Why: Sudden cardiac death in early myocardial ischemia is predominantly driven by ventricular tachyarrhythmias (ventricular fibrillation).\n• The What: Out-of-hospital cardiac arrest (OHCA) presents with sudden collapse, unresponsiveness, and agonal breathing.\n• The How: Pantridge demonstrated that acute coronary stabilization cannot wait for hospital hospital arrival."
+      },
+      {
+        "type": "MCQ",
+        "category": "Emergency Medical Services",
+        "scenario": "A municipal health officer is restructuring an emergency response network. In reviewing the historical evolution of emergency medical systems, the officer notes the 1966 National Academy of Sciences landmark report entitled 'Accidental Death and Disability: The Neglected Disease of Modern Society.' Which critical prehospital deficiency highlighted in this publication served as the primary catalyst for modern EMS legislation?",
+        "options": [
+          "A) Complete absence of hospital-based intensive care beds and trauma operating theaters",
+          "B) Inadequate equipment, lack of standardized provider training, and reliance on funeral home hearses to transport patients",
+          "C) Excessive use of air medical helicopters causing municipal health budget deficits",
+          "D) Strict federal communications regulations prohibiting ambulance-to-hospital telemetry"
+        ],
+        "correct": 1,
+        "explanation": "Correct Answer: B. The 1966 'White Paper' documented that prehospital trauma care was severely deficient due to inadequate equipment and poor provider training, and over half of ambulance services were operated by funeral homes using hearses.",
+        "lecture": "📖 Deep-Dive Lecture Notes: The 1966 White Paper and EMS Infrastructure\n\n• The Why: Unaddressed airway compromise and hemorrhage lead to irreversible tissue ischemia.\n• The What: High historical prehospital mortality resulted from secondary injuries during unmonitored transport in makeshift vehicles.\n• The How: Spurred the National Highway Safety Act of 1966, establishing standardized curricula and vehicle specifications."
+      },
+      {
+        "type": "SATA",
+        "category": "Emergency Medical Services",
+        "scenario": "During an accreditation audit of a regional emergency medical network, an EMS medical director examines compliance with the foundational mandates of the U.S. EMS Systems Act of 1973. Which of the following constitute official elements among the 15 mandatory components required by this landmark statute?",
+        "options": [
+          "A) Manpower, Training, and Communications",
+          "B) Mandatory universal physician staffing on all primary transport ambulances",
+          "C) Coordinated patient record keeping, Review and evaluation, and Disaster planning",
+          "D) Facilities and critical-care units, Patient transfer agreements, and Mutual aid"
+        ],
+        "correct": [0, 2, 3],
+        "explanation": "Correct Answer: A, C, and D. The U.S. EMS Systems Act of 1973 defined 15 required components for regional EMS systems. Universal physician staffing on ambulances (Option B) was never mandated.",
+        "lecture": "📖 Deep-Dive Lecture Notes: Foundational Components of EMS Systems\n\n• The Why: Time-dependent emergencies require a continuous chain of survival.\n• The What: Coordinated regional EMS frameworks standardize initial field stabilization and transfer algorithms.\n• The How: Allocated federal grants across designated EMS regions to force systems integration."
+      }
+    ];
+
+    function loadQuestionBank() {
+        let savedCards = localStorage.getItem('custom_em_cards');
+        if (savedCards) {
+            try {
+                return JSON.parse(savedCards);
+            } catch(e) { console.error("Error loading saved cards", e); }
+        }
+        // If nothing is in local storage yet, initialize with default cards and save them
+        localStorage.setItem('custom_em_cards', JSON.stringify(initialMasterCards));
+        return initialMasterCards;
     }
 
+    let activeMasterCards = loadQuestionBank();
     let currentCards = [];
     let currentIndex = 0;
     let answeredState = {}; 
@@ -392,6 +611,9 @@
     const examScreen = document.getElementById('exam-screen');
     const topicGrid = document.getElementById('topic-grid');
     const palettePills = document.getElementById('palette-pills');
+    const addModal = document.getElementById('add-modal');
+    const manageModal = document.getElementById('manage-modal');
+    const manageListContainer = document.getElementById('manage-list-container');
 
     const questionNumberEl = document.getElementById('question-number');
     const typeBadgeEl = document.getElementById('card-type-badge');
@@ -406,6 +628,101 @@
     const attemptedCountEl = document.getElementById('attempted-count');
     const totalCountEl = document.getElementById('total-count');
 
+    function openAddModal() { addModal.style.display = 'flex'; }
+    function closeAddModal() { addModal.style.display = 'none'; }
+
+    function openManageModal() {
+        renderManageList();
+        manageModal.style.display = 'flex';
+    }
+    function closeManageModal() { 
+        manageModal.style.display = 'none'; 
+        initTopicMenu();
+    }
+
+    function renderManageList() {
+        let savedCards = JSON.parse(localStorage.getItem('custom_em_cards') || '[]');
+        manageListContainer.innerHTML = '';
+
+        if (savedCards.length === 0) {
+            manageListContainer.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem; text-align:center; padding:20px;">No questions added yet.</p>';
+            return;
+        }
+
+        let categories = {};
+        savedCards.forEach((card, originalIdx) => {
+            let cat = card.category || "Uncategorized";
+            if (!categories[cat]) categories[cat] = [];
+            categories[cat].push({ card, originalIdx });
+        });
+
+        for (const [catName, items] of Object.entries(categories)) {
+            const catHeader = document.createElement('div');
+            catHeader.style.cssText = "background: #e2e8f0; padding: 6px 10px; font-weight: 700; font-size: 0.85rem; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; margin-top: 5px;";
+            catHeader.innerHTML = `
+                <span>📁 ${catName} (${items.length} items)</span>
+                <button style="background:#ef4444; color:white; border:none; padding:2px 8px; border-radius:3px; cursor:pointer; font-size:0.75rem;" onclick="deleteCategory('${catName}')">Delete Category</button>
+            `;
+            manageListContainer.appendChild(catHeader);
+
+            items.forEach(({ card, originalIdx }) => {
+                const item = document.createElement('div');
+                item.className = 'manage-item';
+                item.innerHTML = `
+                    <input type="checkbox" class="question-checkbox" data-index="${originalIdx}">
+                    <div style="font-size:0.85rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:430px;">
+                        ${card.scenario}
+                    </div>
+                `;
+                manageListContainer.appendChild(item);
+            });
+        }
+    }
+
+    function toggleSelectAll(source) {
+        checkboxes = document.querySelectorAll('.question-checkbox');
+        checkboxes.forEach(cb => cb.checked = source.checked);
+    }
+
+    function deleteSelectedQuestions() {
+        let checkboxes = document.querySelectorAll('.question-checkbox:checked');
+        if (checkboxes.length === 0) {
+            alert("Please select at least one question to delete.");
+            return;
+        }
+
+        if (!confirm(`Delete ${checkboxes.length} selected questions?`)) return;
+
+        let indicesToDelete = Array.from(checkboxes).map(cb => parseInt(cb.getAttribute('data-index')));
+        let savedCards = JSON.parse(localStorage.getItem('custom_em_cards') || '[]');
+        
+        let updatedCards = savedCards.filter((_, idx) => !indicesToDelete.includes(idx));
+        localStorage.setItem('custom_em_cards', JSON.stringify(updatedCards));
+        
+        document.getElementById('select-all-checkbox').checked = false;
+        renderManageList();
+    }
+
+    function deleteCategory(catName) {
+        if (!confirm(`Delete ALL questions under category "${catName}"?`)) return;
+        let savedCards = JSON.parse(localStorage.getItem('custom_em_cards') || '[]');
+        
+        let updatedCards = savedCards.filter(card => card.category !== catName);
+        localStorage.setItem('custom_em_cards', JSON.stringify(updatedCards));
+        renderManageList();
+    }
+
+    // Easy backup feature to share questions between computer and phone!
+    function exportQuestionsFile() {
+        let savedCards = localStorage.getItem('custom_em_cards') || '[]';
+        let blob = new Blob([savedCards], {type: "application/json"});
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = "em_review_questions_backup.json";
+        a.click();
+    }
+
     function toggleLecture() {
         if (lectureContentEl.classList.contains('expanded')) {
             lectureContentEl.classList.remove('expanded');
@@ -413,6 +730,33 @@
         } else {
             lectureContentEl.classList.add('expanded');
             lectureToggleBtn.innerText = "📖 Collapse Lecture Notes";
+        }
+    }
+
+    function importQuestions() {
+        const rawText = document.getElementById('json-input').value.trim();
+        if (!rawText) return;
+
+        try {
+            let cleaned = rawText.replace(/```json/g, '').replace(/```javascript/g, '').replace(/```/g, '').trim();
+            cleaned = cleaned.replace(/,\s*([\]}])/g, '$1');
+            let newBatch = JSON.parse(cleaned);
+
+            if (Array.isArray(newBatch)) {
+                let existingSaved = JSON.parse(localStorage.getItem('custom_em_cards') || '[]');
+                let combinedSaved = existingSaved.concat(newBatch);
+                localStorage.setItem('custom_em_cards', JSON.stringify(combinedSaved));
+                
+                activeMasterCards = loadQuestionBank();
+                initTopicMenu();
+                closeAddModal();
+                document.getElementById('json-input').value = '';
+                alert(`Successfully imported ${newBatch.length} new questions!`);
+            } else {
+                alert("Error: Pasted text must be an array [ { ... } ].");
+            }
+        } catch(err) {
+            alert("Parsing Error: " + err.message);
         }
     }
 
@@ -456,20 +800,20 @@
     }
 
     function initTopicMenu() {
-        if (typeof masterCards === 'undefined') return;
+        activeMasterCards = loadQuestionBank();
         const counts = {};
-        masterCards.forEach(c => counts[c.category] = (counts[c.category] || 0) + 1);
+        activeMasterCards.forEach(c => counts[c.category] = (counts[c.category] || 0) + 1);
 
         topicGrid.innerHTML = '';
         
-        if (masterCards.length === 0) {
-            topicGrid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:30px; color:var(--text-muted);"><h3>cases.js is empty!</h3><p>Add your question objects inside cases.js.</p></div>';
+        if (activeMasterCards.length === 0) {
+            topicGrid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:30px; color:var(--text-muted);"><h3>No questions loaded!</h3><p>Click "Add Questions" above.</p></div>';
             return;
         }
 
         let allCard = document.createElement('div');
         allCard.className = 'topic-card all-topics-card';
-        allCard.innerHTML = `<span class="topic-card-title">🌟 Comprehensive Exam (All Topics)</span><span class="topic-card-badge">${masterCards.length} Questions</span>`;
+        allCard.innerHTML = `<span class="topic-card-title">🌟 Comprehensive Exam (All Topics)</span><span class="topic-card-badge">${activeMasterCards.length} Questions</span>`;
         allCard.onclick = () => startExam("All");
         topicGrid.appendChild(allCard);
 
@@ -483,7 +827,7 @@
     }
 
     function startExam(topic) {
-        currentCards = topic === "All" ? [...masterCards] : masterCards.filter(c => c.category === topic);
+        currentCards = topic === "All" ? [...activeMasterCards] : activeMasterCards.filter(c => c.category === topic);
         if (currentCards.length === 0) {
             alert("No questions found in this category.");
             return;
