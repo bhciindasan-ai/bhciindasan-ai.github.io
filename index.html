@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emergency Medicine MCQ Study App</title>
+    <!-- LINK YOUR EXTERNAL CASES.JS FILE HERE -->
+    <script src="cases.js"></script>
     <style>
         :root {
             --primary: #2980b9;
@@ -43,7 +45,6 @@
             font-size: 0.95rem;
             margin: 5px 0 0;
         }
-        /* Scoreboard styling */
         .scoreboard {
             display: flex;
             justify-content: space-around;
@@ -55,9 +56,7 @@
             font-weight: 600;
             font-size: 0.9rem;
         }
-        .score-item span {
-            font-weight: 700;
-        }
+        .score-item span { font-weight: 700; }
         .score-correct { color: var(--success); }
         .score-incorrect { color: var(--error); }
 
@@ -101,9 +100,7 @@
             transition: all 0.2s ease;
             font-size: 0.95rem;
         }
-        .option-item:hover:not(.disabled) {
-            background: #dfe4ea;
-        }
+        .option-item:hover:not(.disabled) { background: #dfe4ea; }
         .option-item.correct {
             background: rgba(39, 174, 96, 0.15);
             border-color: var(--success);
@@ -115,9 +112,7 @@
             border-color: var(--error);
             color: #922b21;
         }
-        .option-item.disabled {
-            cursor: default;
-        }
+        .option-item.disabled { cursor: default; }
         .rationale-section {
             background: #f8f9fa;
             border-radius: 8px;
@@ -166,26 +161,21 @@
         <p>Active Recall: Answer first, get instant pathophysiology rationales</p>
     </header>
 
-    <!-- Score Counter Panel -->
     <div class="scoreboard">
         <div class="score-item">Correct: <span id="count-correct" class="score-correct">0</span></div>
         <div class="score-item">Incorrect: <span id="count-incorrect" class="score-incorrect">0</span></div>
-        <div class="score-item">Answered: <span id="count-answered">0</span> / <span id="total-cards">3</span></div>
+        <div class="score-item">Answered: <span id="count-answered">0</span> / <span id="total-cards">0</span></div>
     </div>
 
     <div class="flashcard" id="card-element">
         <div class="card-meta">
-            <span id="card-category">Toxicology / Resuscitation</span>
-            <span id="card-counter">Card 1 of 3</span>
+            <span id="card-category">Loading...</span>
+            <span id="card-counter">Card 0 of 0</span>
         </div>
         
-        <div class="scenario-title" id="card-scenario">
-            Loading scenario...
-        </div>
+        <div class="scenario-title" id="card-scenario">Loading questions from cases.js...</div>
 
-        <ul class="options-list" id="options-list">
-            <!-- Dynamic Options -->
-        </ul>
+        <ul class="options-list" id="options-list"></ul>
 
         <div class="rationale-section" id="rationale-box">
             <h4>💡 In-Depth Rationale & Pathophysiology:</h4>
@@ -195,54 +185,14 @@
 
     <div class="nav-controls">
         <button class="btn" onclick="prevCard()">← Previous</button>
-        <span id="progress-indicator" style="font-weight: 600; color: #7f8c8d; font-size: 0.9rem;">1 / 3</span>
+        <span id="progress-indicator" style="font-weight: 600; color: #7f8c8d; font-size: 0.9rem;">0 / 0</span>
         <button class="btn" onclick="nextCard()">Next →</button>
     </div>
 </div>
 
 <script>
-    // QUESTION BANK
-    const studyCards = [
-        {
-            category: "Toxicology / Resuscitation",
-            scenario: "A 45-year-old male is rescued from a house fire. He is confused, tachypneic, and exhibits bright cherry-red skin coloration with soot around his mouth. Pulse oximetry reads 98% on room air.",
-            options: [
-                "A) The pulse oximeter is functioning perfectly, ruling out significant tissue hypoxia.",
-                "B) Pulse oximetry is misleading because it cannot distinguish between oxyhemoglobin and carboxyhemoglobin.",
-                "C) The patient has hyperoxemia and requires immediate oxygen discontinuation.",
-                "D) The pulse oximeter reading is low due to severe peripheral vasoconstriction."
-            ],
-            correct: 1,
-            explanation: "<strong>Correct Answer: B.</strong> Standard pulse oximeters measure light absorption wavelengths, but they cannot differentiate normal oxyhemoglobin from carboxyhemoglobin (COHb). A patient can suffer severe tissue hypoxia while showing a falsely normal SpO2 of 98%. Treatment demands 100% high-flow oxygen."
-        },
-        {
-            category: "Trauma / Shock",
-            scenario: "A trauma patient from a high-speed MVC presents with severe agitation, hypotension (75/45 mmHg), muffled heart sounds, distended neck veins (JVD), and clear bilateral breath sounds.",
-            options: [
-                "A) Tension Pneumothorax — requires immediate needle thoracostomy.",
-                "B) Cardiac Tamponade — characterized by Beck's triad and clear breath sounds.",
-                "C) Hypovolemic Shock — characterized by flat neck veins and tachycardia.",
-                "D) Massive Hemothorax — characterized by dullness to percussion and absent breath sounds."
-            ],
-            correct: 1,
-            explanation: "<strong>Correct Answer: B.</strong> Beck's triad (hypotension, JVD, muffled heart sounds) combined with clear bilateral breath sounds points directly to Cardiac Tamponade. Fluid accumulates in the pericardial sac, preventing diastolic filling and dropping cardiac output."
-        },
-        {
-            category: "Pulmonary Emergency",
-            scenario: "A patient presents with acute shortness of breath and pleuritic chest pain. Physical exam reveals absent breath sounds on the right hemithorax, hyperresonance to percussion, and tracheal deviation to the left.",
-            options: [
-                "A) Administer IV diuretics and prepare for intubation.",
-                "B) Order a stat chest CT scan before taking any action.",
-                "C) Perform immediate needle decompression of the right 2nd intercostal space.",
-                "D) Apply a non-rebreather mask and monitor serial blood gases."
-            ],
-            correct: 2,
-            explanation: "<strong>Correct Answer: C.</strong> This clinical picture describes a life-threatening <strong>Tension Pneumothorax</strong> causing obstructive shock. Air builds up in the pleural space, shifting the mediastinum. This is a clinical diagnosis requiring immediate needle decompression—never delay for a chest X-ray or CT."
-        }
-    ];
-
     let currentIndex = 0;
-    let answeredState = {}; // Stores { cardIndex: selectedOptionIndex }
+    let answeredState = {};
     let correctCount = 0;
     let incorrectCount = 0;
 
@@ -254,13 +204,18 @@
     const rationaleTextEl = document.getElementById('card-rationale');
     const progressIndicatorEl = document.getElementById('progress-indicator');
     
-    // Scoreboard elements
     const countCorrectEl = document.getElementById('count-correct');
     const countIncorrectEl = document.getElementById('count-incorrect');
     const countAnsweredEl = document.getElementById('count-answered');
     const totalCardsEl = document.getElementById('total-cards');
 
-    totalCardsEl.innerText = studyCards.length;
+    // Ensure studyCards loaded successfully from cases.js
+    if (typeof studyCards !== 'undefined' && studyCards.length > 0) {
+        totalCardsEl.innerText = studyCards.length;
+        renderCard();
+    } else {
+        scenarioEl.innerText = "Error: Could not read cases.js. Make sure cases.js is in the same folder, starts with 'const studyCards = [...]', and has no syntax errors.";
+    }
 
     function renderCard() {
         const card = studyCards[currentIndex];
@@ -268,7 +223,7 @@
         categoryEl.innerText = card.category;
         counterEl.innerText = `Card ${currentIndex + 1} of ${studyCards.length}`;
         scenarioEl.innerText = card.scenario;
-        rationaleTextEl.innerHTML = card.rationale;
+        rationaleTextEl.innerHTML = card.explanation;
 
         optionsListEl.innerHTML = '';
         card.options.forEach((option, index) => {
@@ -306,7 +261,6 @@
         answeredState[currentIndex] = selectedIndex;
         const card = studyCards[currentIndex];
         
-        // Update score tallies
         if (selectedIndex === card.correct) {
             correctCount++;
         } else {
@@ -343,9 +297,6 @@
         currentIndex = (currentIndex - 1 + studyCards.length) % studyCards.length;
         renderCard();
     }
-
-    // Initialize first card
-    renderCard();
 </script>
 
 </body>
