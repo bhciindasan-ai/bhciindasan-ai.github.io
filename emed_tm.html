@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Medicine MCQ Study App</title>
+    <style>
+        :root {
+            --primary: #2980b9;
+            --accent: #c0392b;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --card-bg: #ffffff;
+            --success: #27ae60;
+            --error: #c0392b;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 650px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        header h1 {
+            margin: 0;
+            color: var(--dark);
+            font-size: 1.6rem;
+        }
+        header p {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+            margin: 5px 0 0;
+        }
+        /* Scoreboard styling */
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .score-item span {
+            font-weight: 700;
+        }
+        .score-correct { color: var(--success); }
+        .score-incorrect { color: var(--error); }
+
+        .flashcard {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            padding: 30px;
+            margin-bottom: 20px;
+            border-top: 5px solid var(--accent);
+        }
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #95a5a6;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        .scenario-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        .option-item {
+            background: #f1f2f6;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+        .option-item:hover:not(.disabled) {
+            background: #dfe4ea;
+        }
+        .option-item.correct {
+            background: rgba(39, 174, 96, 0.15);
+            border-color: var(--success);
+            color: #1e8449;
+            font-weight: 600;
+        }
+        .option-item.incorrect {
+            background: rgba(192, 57, 43, 0.15);
+            border-color: var(--error);
+            color: #922b21;
+        }
+        .option-item.disabled {
+            cursor: default;
+        }
+        .rationale-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid var(--success);
+            display: none;
+        }
+        .rationale-section.visible {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .rationale-section h4 {
+            margin-top: 0;
+            color: var(--success);
+            font-size: 1rem;
+        }
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            background-color: #bdc3c7;
+            color: var(--dark);
+        }
+        .btn:hover { background-color: #95a5a6; }
+        .nav-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>⚡ EM Multiple-Choice Study Cards</h1>
+        <p>Active Recall: Answer first, get instant pathophysiology rationales</p>
+    </header>
+
+    <!-- Score Counter Panel -->
+    <div class="scoreboard">
+        <div class="score-item">Correct: <span id="count-correct" class="score-correct">0</span></div>
+        <div class="score-item">Incorrect: <span id="count-incorrect" class="score-incorrect">0</span></div>
+        <div class="score-item">Answered: <span id="count-answered">0</span> / <span id="total-cards">3</span></div>
+    </div>
+
+    <div class="flashcard" id="card-element">
+        <div class="card-meta">
+            <span id="card-category">Toxicology / Resuscitation</span>
+            <span id="card-counter">Card 1 of 3</span>
+        </div>
+        
+        <div class="scenario-title" id="card-scenario">
+            Loading scenario...
+        </div>
+
+        <ul class="options-list" id="options-list">
+            <!-- Dynamic Options -->
+        </ul>
+
+        <div class="rationale-section" id="rationale-box">
+            <h4>💡 In-Depth Rationale & Pathophysiology:</h4>
+            <p id="card-rationale" style="line-height: 1.6; margin: 0;"></p>
+        </div>
+    </div>
+
+    <div class="nav-controls">
+        <button class="btn" onclick="prevCard()">← Previous</button>
+        <span id="progress-indicator" style="font-weight: 600; color: #7f8c8d; font-size: 0.9rem;">1 / 3</span>
+        <button class="btn" onclick="nextCard()">Next →</button>
+    </div>
+</div>
+
+<script>
+    // QUESTION BANK
+    const studyCards = [
+        {
+            category: "Toxicology / Resuscitation",
+            scenario: "A 45-year-old male is rescued from a house fire. He is confused, tachypneic, and exhibits bright cherry-red skin coloration with soot around his mouth. Pulse oximetry reads 98% on room air.",
+            options: [
+                "A) The pulse oximeter is functioning perfectly, ruling out significant tissue hypoxia.",
+                "B) Pulse oximetry is misleading because it cannot distinguish between oxyhemoglobin and carboxyhemoglobin.",
+                "C) The patient has hyperoxemia and requires immediate oxygen discontinuation.",
+                "D) The pulse oximeter reading is low due to severe peripheral vasoconstriction."
+            ],
+            correct: 1,
+            explanation: "<strong>Correct Answer: B.</strong> Standard pulse oximeters measure light absorption wavelengths, but they cannot differentiate normal oxyhemoglobin from carboxyhemoglobin (COHb). A patient can suffer severe tissue hypoxia while showing a falsely normal SpO2 of 98%. Treatment demands 100% high-flow oxygen."
+        },
+        {
+            category: "Trauma / Shock",
+            scenario: "A trauma patient from a high-speed MVC presents with severe agitation, hypotension (75/45 mmHg), muffled heart sounds, distended neck veins (JVD), and clear bilateral breath sounds.",
+            options: [
+                "A) Tension Pneumothorax — requires immediate needle thoracostomy.",
+                "B) Cardiac Tamponade — characterized by Beck's triad and clear breath sounds.",
+                "C) Hypovolemic Shock — characterized by flat neck veins and tachycardia.",
+                "D) Massive Hemothorax — characterized by dullness to percussion and absent breath sounds."
+            ],
+            correct: 1,
+            explanation: "<strong>Correct Answer: B.</strong> Beck's triad (hypotension, JVD, muffled heart sounds) combined with clear bilateral breath sounds points directly to Cardiac Tamponade. Fluid accumulates in the pericardial sac, preventing diastolic filling and dropping cardiac output."
+        },
+        {
+            category: "Pulmonary Emergency",
+            scenario: "A patient presents with acute shortness of breath and pleuritic chest pain. Physical exam reveals absent breath sounds on the right hemithorax, hyperresonance to percussion, and tracheal deviation to the left.",
+            options: [
+                "A) Administer IV diuretics and prepare for intubation.",
+                "B) Order a stat chest CT scan before taking any action.",
+                "C) Perform immediate needle decompression of the right 2nd intercostal space.",
+                "D) Apply a non-rebreather mask and monitor serial blood gases."
+            ],
+            correct: 2,
+            explanation: "<strong>Correct Answer: C.</strong> This clinical picture describes a life-threatening <strong>Tension Pneumothorax</strong> causing obstructive shock. Air builds up in the pleural space, shifting the mediastinum. This is a clinical diagnosis requiring immediate needle decompression—never delay for a chest X-ray or CT."
+        }
+    ];
+
+    let currentIndex = 0;
+    let answeredState = {}; // Stores { cardIndex: selectedOptionIndex }
+    let correctCount = 0;
+    let incorrectCount = 0;
+
+    const categoryEl = document.getElementById('card-category');
+    const counterEl = document.getElementById('card-counter');
+    const scenarioEl = document.getElementById('card-scenario');
+    const optionsListEl = document.getElementById('options-list');
+    const rationaleBoxEl = document.getElementById('rationale-box');
+    const rationaleTextEl = document.getElementById('card-rationale');
+    const progressIndicatorEl = document.getElementById('progress-indicator');
+    
+    // Scoreboard elements
+    const countCorrectEl = document.getElementById('count-correct');
+    const countIncorrectEl = document.getElementById('count-incorrect');
+    const countAnsweredEl = document.getElementById('count-answered');
+    const totalCardsEl = document.getElementById('total-cards');
+
+    totalCardsEl.innerText = studyCards.length;
+
+    function renderCard() {
+        const card = studyCards[currentIndex];
+
+        categoryEl.innerText = card.category;
+        counterEl.innerText = `Card ${currentIndex + 1} of ${studyCards.length}`;
+        scenarioEl.innerText = card.scenario;
+        rationaleTextEl.innerHTML = card.rationale;
+
+        optionsListEl.innerHTML = '';
+        card.options.forEach((option, index) => {
+            const li = document.createElement('li');
+            li.className = 'option-item';
+            li.innerText = option;
+
+            if (answeredState[currentIndex] !== undefined) {
+                li.classList.add('disabled');
+                if (index === card.correct) {
+                    li.classList.add('correct');
+                } else if (index === answeredState[currentIndex]) {
+                    li.classList.add('incorrect');
+                }
+            } else {
+                li.onclick = () => selectOption(index, li);
+            }
+
+            optionsListEl.appendChild(li);
+        });
+
+        if (answeredState[currentIndex] !== undefined) {
+            rationaleBoxEl.classList.add('visible');
+        } else {
+            rationaleBoxEl.classList.remove('visible');
+        }
+
+        progressIndicatorEl.innerText = `${currentIndex + 1} / ${studyCards.length}`;
+        updateScoreboard();
+    }
+
+    function selectOption(selectedIndex, element) {
+        if (answeredState[currentIndex] !== undefined) return;
+
+        answeredState[currentIndex] = selectedIndex;
+        const card = studyCards[currentIndex];
+        
+        // Update score tallies
+        if (selectedIndex === card.correct) {
+            correctCount++;
+        } else {
+            incorrectCount++;
+        }
+
+        const optionItems = optionsListEl.children;
+        for (let i = 0; i < optionItems.length; i++) {
+            optionItems[i].classList.add('disabled');
+            if (i === card.correct) {
+                optionItems[i].classList.add('correct');
+            } else if (i === selectedIndex) {
+                optionItems[i].classList.add('incorrect');
+            }
+        }
+
+        rationaleBoxEl.classList.add('visible');
+        updateScoreboard();
+    }
+
+    function updateScoreboard() {
+        const totalAnswered = Object.keys(answeredState).length;
+        countCorrectEl.innerText = correctCount;
+        countIncorrectEl.innerText = incorrectCount;
+        countAnsweredEl.innerText = totalAnswered;
+    }
+
+    function nextCard() {
+        currentIndex = (currentIndex + 1) % studyCards.length;
+        renderCard();
+    }
+
+    function prevCard() {
+        currentIndex = (currentIndex - 1 + studyCards.length) % studyCards.length;
+        renderCard();
+    }
+
+    // Initialize first card
+    renderCard();
+</script>
+
+</body>
+</html>
