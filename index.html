@@ -3,972 +3,339 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE NO REMEDIAL REVIEW ^^</title>
+    <title>RadLearn MD - Medical Student Clerkship Radiograph Trainer</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        :root {
-            --bg-main: #f8fafc;
-            --surface: #ffffff;
-            --primary: #3b82f6;
-            --primary-dark: #1d4ed8;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --error: #ef4444;
-            --sata-badge: #8b5cf6;
-            --lecture-bg: #f0fdf4;
-            --lecture-border: #bbf7d0;
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(30, 58, 138, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(30, 58, 138, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(30, 58, 138, 0); }
         }
-
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .assessment-header {
-            background-color: #0f172a;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 24px;
-            font-size: 0.95rem;
-            border-bottom: 2px solid var(--primary);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            z-index: 10;
-        }
-        .header-left {
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .timer-box {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 0.95rem;
-            letter-spacing: 1px;
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-        .finish-btn {
-            background-color: #ef4444;
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .finish-btn:hover { background-color: #dc2626; }
-
-        #topic-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex-grow: 1;
-            padding: 25px 20px;
-            overflow-y: auto;
-            background: var(--bg-main);
-        }
-        .topic-wrapper {
-            width: 100%;
-            max-width: 800px;
-        }
-
-        .menu-top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .btn-group {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .add-btn {
-            background-color: var(--success);
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: background 0.2s;
-        }
-        .add-btn:hover { background-color: #059669; }
-        .manage-btn {
-            background-color: #64748b;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: background 0.2s;
-        }
-        .manage-btn:hover { background-color: #475569; }
-        .sync-btn {
-            background-color: #8b5cf6;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: background 0.2s;
-        }
-        .sync-btn:hover { background-color: #7c3aed; }
-
-        /* Modals */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(2px);
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-        .modal-card {
-            background: var(--surface);
-            width: 90%;
-            max-width: 700px;
-            max-height: 85vh;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            overflow: hidden;
-        }
-        .modal-card textarea {
-            width: 100%;
-            height: 160px;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            font-family: monospace;
-            font-size: 0.85rem;
-            resize: vertical;
-        }
-        .question-list-manage {
-            overflow-y: auto;
-            max-height: 45vh;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding-right: 5px;
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            padding-top: 10px;
-            padding-bottom: 10px;
-        }
-        .manage-item {
-            background: #f8fafc;
-            border: 1px solid var(--border);
-            padding: 10px 12px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .manage-controls-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f1f5f9;
-            padding: 10px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-        }
-        .delete-btn-bulk {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.8rem;
-        }
-        .delete-btn-bulk:hover { background: #dc2626; }
-
-        .config-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 18px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .config-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-        .config-row select, .config-row input {
-            padding: 6px 10px;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            font-size: 0.9rem;
-            background: var(--bg-main);
-            color: var(--text-main);
-        }
-
-        .topic-grid-container {
-            max-height: 40vh;
-            overflow-y: auto;
-            padding-right: 5px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .topic-grid-container::-webkit-scrollbar { width: 6px; }
-        .topic-grid-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-
-        .topic-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--primary);
-            padding: 16px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-            transition: all 0.2s ease;
-        }
-        .topic-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
-            background: #f8fafc;
-        }
-        .topic-card-title { font-weight: 600; font-size: 0.95rem; color: var(--text-main); }
-        .topic-card-badge { background: #e2e8f0; color: var(--text-muted); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-        .all-topics-card {
-            grid-column: 1 / -1;
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            border-left: 4px solid var(--success);
-            color: white;
-        }
-        .all-topics-card:hover { background: linear-gradient(135deg, #334155, #1e293b); }
-        .all-topics-card .topic-card-title { color: white; }
-        .all-topics-card .topic-card-badge { background: rgba(255,255,255,0.2); color: white; }
-
-        #exam-screen {
-            display: none;
-            flex-direction: column;
-            flex-grow: 1;
-            height: calc(100vh - 55px);
-            background: var(--surface);
-        }
-
-        .exam-nav-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f8fafc;
-            border-bottom: 1px solid var(--border);
-            padding: 10px 20px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-        .palette-pills {
-            display: flex;
-            gap: 6px;
-            overflow-x: auto;
-            max-width: 55%;
-            padding: 2px;
-        }
-        .pill {
-            width: 30px; height: 30px;
-            display: flex; align-items: center; justify-content: center;
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.8rem;
-            color: var(--text-muted); flex-shrink: 0; transition: all 0.15s;
-        }
-        .pill:hover { border-color: var(--primary); }
-        .pill.active { border: 2px solid var(--primary); color: var(--primary); background: #eff6ff; }
-        .pill.attempted { background: var(--success); color: white; border-color: var(--success); }
-
-        .split-workspace { display: flex; flex-grow: 1; overflow: hidden; }
-        .left-panel { flex: 1; border-right: 1px solid var(--border); padding: 30px; overflow-y: auto; background: var(--surface); }
-        .right-panel { flex: 1; padding: 30px; overflow-y: auto; background: #fdfdfe; display: flex; flex-direction: column; justify-content: space-between; }
-
-        .question-title {
-            font-size: 1.05rem; font-weight: 700; color: var(--text-main);
-            margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;
-        }
-        .scenario-box {
-            font-size: 0.98rem; line-height: 1.7; color: #334155;
-            background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid var(--border);
-        }
-
-        .options-list { list-style: none; padding: 0; margin: 0 0 20px 0; }
-        .option-item {
-            background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
-            padding: 12px 16px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;
-            font-size: 0.93rem; display: flex; align-items: center; color: #334155;
-        }
-        .option-item:hover:not(.disabled) { background: #f8fafc; border-color: #cbd5e1; }
-        .option-item.selected { background: #eff6ff; border-color: var(--primary); color: var(--primary-dark); }
-        .option-item.correct { background: #ecfdf5 !important; border-color: var(--success) !important; color: #065f46; font-weight: 600; }
-        .option-item.incorrect { background: #fef2f2 !important; border-color: var(--error) !important; color: #991b1b; }
-        .option-item.disabled { cursor: default; }
-
-        .submit-btn {
-            background-color: var(--success); color: white; width: 100%; padding: 12px;
-            border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 15px;
-            display: none;
-        }
-        .submit-btn:hover { background-color: #059669; }
-
-        .rationale-box {
-            background: var(--lecture-bg);
-            border-left: 4px solid var(--success);
-            border: 1px solid var(--lecture-border);
-            border-radius: 8px;
-            padding: 18px;
-            margin-top: 15px;
-            display: none;
-        }
-        .rationale-box.visible { display: block; animation: fadeIn 0.3s ease; }
-        .rationale-box h4 { margin: 0 0 8px 0; color: #065f46; font-size: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .hotspot-pin { animation: pulse-ring 2s infinite; }
         
-        .lecture-toggle-btn {
-            background: #10b981;
-            color: white;
-            border: none;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        .lecture-toggle-btn:hover { background: #059669; }
-
-        .lecture-content {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px dashed #a7f3d0;
-            font-size: 0.9rem;
-            line-height: 1.7;
-            color: #14532d;
+        .lens-box {
+            position: absolute;
+            border: 3px solid #1e3a8a;
+            border-radius: 50%;
+            cursor: none;
+            width: 130px;
+            height: 130px;
             display: none;
+            pointer-events: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            background-repeat: no-repeat;
         }
-        .lecture-content.expanded { display: block; }
 
-        .exam-footer { display: flex; justify-content: space-between; align-items: center; padding: 15px 0 0 0; background: transparent; }
-        .btn {
-            padding: 9px 20px; border: 1px solid var(--border); background: var(--surface);
-            border-radius: 6px; font-weight: 600; cursor: pointer; color: var(--text-main);
-        }
-        .btn:hover { background: #f1f5f9; }
-        .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
-        .btn-primary:hover { background: var(--primary-dark); }
-
-        .cute-footer {
-            background-color: #0f172a; color: #ffffff; text-align: center;
-            padding: 6px; font-size: 0.7rem; letter-spacing: 0.5px; border-top: 1px solid #1e293b;
-        }
+        .inverted { filter: invert(100%) contrast(125%); }
     </style>
 </head>
-<body>
+<body class="bg-slate-100 text-slate-900 font-sans min-h-screen flex flex-col">
 
-    <div class="assessment-header">
-        <div class="header-left">THE NO REMEDIAL REVIEW ^^</div>
-        <div class="header-right">
-            <span><span id="timer-label">Time Remaining</span>: <span id="timer" class="timer-box">00:45:00</span></span>
-            <button class="finish-btn" onclick="returnToMenu()">Exit Exam</button>
+    <!-- Top Header -->
+    <header class="bg-slate-900 text-white border-b border-slate-800 px-4 md:px-6 py-4 flex items-center justify-between shadow-md">
+        <div class="flex items-center space-x-3">
+            <div class="bg-blue-600 p-2 rounded-lg font-bold text-white text-xs tracking-wider">MD-XR</div>
+            <h1 class="text-lg md:text-xl font-bold tracking-tight">RadLearn Clerkship <span class="text-xs text-blue-400 font-medium block md:inline">Advanced Radiologic Interpretation</span></h1>
         </div>
-    </div>
+        <div class="text-xs font-semibold text-slate-400 hidden sm:block">Undergraduate Medical Education Curriculum</div>
+    </header>
 
-    <!-- TOPIC SELECTION SCREEN -->
-    <div id="topic-screen">
-        <div class="topic-wrapper">
-            <div class="menu-top-bar">
-                <div>
-                    <h2 style="color: var(--text-main); margin: 0 0 4px 0; font-size: 1.3rem;">Select Assessment Module</h2>
-                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Standalone app. All questions are stored securely in browser memory.</p>
-                </div>
-                <div class="btn-group">
-                    <button class="sync-btn" onclick="exportQuestionsFile()" title="Download a backup file to share with your phone">📥 Export Backup</button>
-                    <button class="manage-btn" onclick="openManageModal()">🗑️ Manage / Delete</button>
-                    <button class="add-btn" onclick="openAddModal()">➕ Add Questions</button>
-                </div>
-            </div>
-            
-            <div class="config-card">
-                <div class="config-row">
-                    <label for="mode-select">Timer Mode:</label>
-                    <select id="mode-select" onchange="toggleModeConfig()">
-                        <option value="exam">Standard Countdown (Custom Minutes)</option>
-                        <option value="pomodoro">🍅 Pomodoro Study Session (25m Focus / 5m Break)</option>
-                    </select>
-                </div>
-                <div class="config-row" id="duration-row">
-                    <label for="custom-duration">Exam Duration (Minutes):</label>
-                    <input type="number" id="custom-duration" value="45" min="1" max="180" style="width: 80px;">
-                </div>
-            </div>
-
-            <div class="topic-grid-container" id="topic-grid"></div>
-        </div>
-    </div>
-
-    <!-- MODAL FOR ADDING QUESTIONS -->
-    <div class="modal-overlay" id="add-modal">
-        <div class="modal-card">
-            <h3 style="margin:0; color:var(--text-main);">Paste New Questions (JSON Format)</h3>
-            <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Paste your question array below:</p>
-            <textarea id="json-input" placeholder='[
-  {
-    "type": "MCQ",
-    "category": "Emergency Medical Services",
-    "scenario": "Patient vignette...",
-    "options": ["A) ...", "B) ...", "C) ...", "D) ..."],
-    "correct": 1,
-    "explanation": "Brief rationale...",
-    "lecture": "Deep dive lecture notes..."
-  }
-]'></textarea>
-            <div style="display:flex; justify-content:flex-end; gap:10px;">
-                <button class="btn" onclick="closeAddModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="importQuestions()">Save & Import</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL FOR MANAGING / DELETING QUESTIONS -->
-    <div class="modal-overlay" id="manage-modal">
-        <div class="modal-card">
-            <h3 style="margin:0; color:var(--text-main);">Manage & Bulk Delete Questions</h3>
-            <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Delete entire categories or select multiple questions to delete:</p>
-            
-            <div class="manage-controls-bar">
-                <div>
-                    <input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this)"> 
-                    <label for="select-all-checkbox" style="font-weight:600; cursor:pointer;">Select All Items</label>
-                </div>
-                <button class="delete-btn-bulk" onclick="deleteSelectedQuestions()">🗑️ Delete Selected</button>
-            </div>
-
-            <div class="question-list-manage" id="manage-list-container"></div>
-
-            <div style="display:flex; justify-content:flex-end;">
-                <button class="btn btn-primary" onclick="closeManageModal()">Done</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- EXAM SPLIT-SCREEN WORKSPACE -->
-    <div id="exam-screen">
-        <div class="exam-nav-bar">
-            <div><strong>Module:</strong> <span id="current-category-label" style="color: var(--primary); font-weight: 600;">Topic</span></div>
-            <div class="palette-pills" id="palette-pills"></div>
-            <div>Attempted: <span id="attempted-count">0</span>/<span id="total-count">0</span></div>
-        </div>
-
-        <div class="split-workspace">
-            <div class="left-panel">
-                <div class="question-title">
-                    <span id="question-number">Question 1</span>
-                    <span id="card-type-badge" class="badge-mcq" style="font-size:0.75rem; padding: 3px 8px; border-radius: 4px; color:white; background:var(--primary);">MCQ</span>
-                </div>
-                <div class="scenario-box" id="card-scenario">Loading scenario...</div>
-            </div>
-
-            <div class="right-panel">
-                <div>
-                    <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 12px;">SELECT APPROPRIATE OPTION(S):</div>
-                    <ul class="options-list" id="options-list"></ul>
-                    <button id="submit-sata-btn" class="submit-btn" onclick="submitSata()">Submit Selected Answers</button>
-
-                    <div class="rationale-box" id="rationale-box">
-                        <h4>
-                            <span>💡 Expert Rationale</span>
-                            <button class="lecture-toggle-btn" id="lecture-toggle-btn" onclick="toggleLecture()">📖 Expand Lecture Notes</button>
-                        </h4>
-                        <p id="card-rationale" style="margin: 0 0 5px 0; font-size: 0.9rem; line-height: 1.6; color: #065f46;"></p>
-                        <div class="lecture-content" id="card-lecture"></div>
-                    </div>
-                </div>
-
-                <div class="exam-footer">
-                    <button class="btn" onclick="prevCard()">← Previous</button>
-                    <button class="btn btn-primary" onclick="nextCard()">Next →</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="cute-footer">
-        labyu my future Dr -bbboi
-    </div>
-
-<script>
-    // Initial 20 EMS Questions built right in so it works instantly out of the box
-    const initialMasterCards = [
-      {
-        "type": "MCQ",
-        "category": "Emergency Medical Services",
-        "scenario": "A 58-year-old male collapses while playing badminton at a community athletic club in Pasig City. Bystanders initiate chest compressions, and local emergency responders arrive within 4 minutes equipped with an automated external defibrillator (AED). Tracing confirms coarse ventricular fibrillation. Responders deliver a single shock and immediately resume high-quality CPR. Which historical milestone first demonstrated that bringing electrical defibrillation and advanced cardiac care directly to patients in the prehospital setting significantly reduces mortality from acute myocardial infarction?",
-        "options": [
-          "A) The 1966 National Academy of Sciences report 'Accidental Death and Disability: The Neglected Disease of Modern Society'",
-          "B) J. Frank Pantridge's deployment of a physician-staffed mobile coronary care unit in Belfast in 1967",
-          "C) The passage of the United States EMS Systems Act of 1973",
-          "D) The Omnibus Budget Reconciliation Act of 1981"
-        ],
-        "correct": 1,
-        "explanation": "Correct Answer: B. In 1967, J. F. Pantridge introduced a physician-staffed mobile coronary care unit in Belfast, Northern Ireland, proving that extending cardiac care and defibrillation into the prehospital phase significantly reduces mortality among acute myocardial infarction patients.",
-        "lecture": "📖 Deep-Dive Lecture Notes: Evolution of Prehospital Emergency Cardiac Care\n\n• The Why: Sudden cardiac death in early myocardial ischemia is predominantly driven by ventricular tachyarrhythmias (ventricular fibrillation).\n• The What: Out-of-hospital cardiac arrest (OHCA) presents with sudden collapse, unresponsiveness, and agonal breathing.\n• The How: Pantridge demonstrated that acute coronary stabilization cannot wait for hospital hospital arrival."
-      },
-      {
-        "type": "MCQ",
-        "category": "Emergency Medical Services",
-        "scenario": "A municipal health officer is restructuring an emergency response network. In reviewing the historical evolution of emergency medical systems, the officer notes the 1966 National Academy of Sciences landmark report entitled 'Accidental Death and Disability: The Neglected Disease of Modern Society.' Which critical prehospital deficiency highlighted in this publication served as the primary catalyst for modern EMS legislation?",
-        "options": [
-          "A) Complete absence of hospital-based intensive care beds and trauma operating theaters",
-          "B) Inadequate equipment, lack of standardized provider training, and reliance on funeral home hearses to transport patients",
-          "C) Excessive use of air medical helicopters causing municipal health budget deficits",
-          "D) Strict federal communications regulations prohibiting ambulance-to-hospital telemetry"
-        ],
-        "correct": 1,
-        "explanation": "Correct Answer: B. The 1966 'White Paper' documented that prehospital trauma care was severely deficient due to inadequate equipment and poor provider training, and over half of ambulance services were operated by funeral homes using hearses.",
-        "lecture": "📖 Deep-Dive Lecture Notes: The 1966 White Paper and EMS Infrastructure\n\n• The Why: Unaddressed airway compromise and hemorrhage lead to irreversible tissue ischemia.\n• The What: High historical prehospital mortality resulted from secondary injuries during unmonitored transport in makeshift vehicles.\n• The How: Spurred the National Highway Safety Act of 1966, establishing standardized curricula and vehicle specifications."
-      },
-      {
-        "type": "SATA",
-        "category": "Emergency Medical Services",
-        "scenario": "During an accreditation audit of a regional emergency medical network, an EMS medical director examines compliance with the foundational mandates of the U.S. EMS Systems Act of 1973. Which of the following constitute official elements among the 15 mandatory components required by this landmark statute?",
-        "options": [
-          "A) Manpower, Training, and Communications",
-          "B) Mandatory universal physician staffing on all primary transport ambulances",
-          "C) Coordinated patient record keeping, Review and evaluation, and Disaster planning",
-          "D) Facilities and critical-care units, Patient transfer agreements, and Mutual aid"
-        ],
-        "correct": [0, 2, 3],
-        "explanation": "Correct Answer: A, C, and D. The U.S. EMS Systems Act of 1973 defined 15 required components for regional EMS systems. Universal physician staffing on ambulances (Option B) was never mandated.",
-        "lecture": "📖 Deep-Dive Lecture Notes: Foundational Components of EMS Systems\n\n• The Why: Time-dependent emergencies require a continuous chain of survival.\n• The What: Coordinated regional EMS frameworks standardize initial field stabilization and transfer algorithms.\n• The How: Allocated federal grants across designated EMS regions to force systems integration."
-      }
-    ];
-
-    function loadQuestionBank() {
-        let savedCards = localStorage.getItem('custom_em_cards');
-        if (savedCards) {
-            try {
-                return JSON.parse(savedCards);
-            } catch(e) { console.error("Error loading saved cards", e); }
-        }
-        // If nothing is in local storage yet, initialize with default cards and save them
-        localStorage.setItem('custom_em_cards', JSON.stringify(initialMasterCards));
-        return initialMasterCards;
-    }
-
-    let activeMasterCards = loadQuestionBank();
-    let currentCards = [];
-    let currentIndex = 0;
-    let answeredState = {}; 
-    let tempSelectedSata = []; 
-    let timerInterval = null;
-    let timeLeft = 45 * 60;
-    let isPomodoroBreak = false;
-
-    const topicScreen = document.getElementById('topic-screen');
-    const examScreen = document.getElementById('exam-screen');
-    const topicGrid = document.getElementById('topic-grid');
-    const palettePills = document.getElementById('palette-pills');
-    const addModal = document.getElementById('add-modal');
-    const manageModal = document.getElementById('manage-modal');
-    const manageListContainer = document.getElementById('manage-list-container');
-
-    const questionNumberEl = document.getElementById('question-number');
-    const typeBadgeEl = document.getElementById('card-type-badge');
-    const categoryLabelEl = document.getElementById('current-category-label');
-    const scenarioEl = document.getElementById('card-scenario');
-    const optionsListEl = document.getElementById('options-list');
-    const submitSataBtn = document.getElementById('submit-sata-btn');
-    const rationaleBoxEl = document.getElementById('rationale-box');
-    const rationaleTextEl = document.getElementById('card-rationale');
-    const lectureContentEl = document.getElementById('card-lecture');
-    const lectureToggleBtn = document.getElementById('lecture-toggle-btn');
-    const attemptedCountEl = document.getElementById('attempted-count');
-    const totalCountEl = document.getElementById('total-count');
-
-    function openAddModal() { addModal.style.display = 'flex'; }
-    function closeAddModal() { addModal.style.display = 'none'; }
-
-    function openManageModal() {
-        renderManageList();
-        manageModal.style.display = 'flex';
-    }
-    function closeManageModal() { 
-        manageModal.style.display = 'none'; 
-        initTopicMenu();
-    }
-
-    function renderManageList() {
-        let savedCards = JSON.parse(localStorage.getItem('custom_em_cards') || '[]');
-        manageListContainer.innerHTML = '';
-
-        if (savedCards.length === 0) {
-            manageListContainer.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem; text-align:center; padding:20px;">No questions added yet.</p>';
-            return;
-        }
-
-        let categories = {};
-        savedCards.forEach((card, originalIdx) => {
-            let cat = card.category || "Uncategorized";
-            if (!categories[cat]) categories[cat] = [];
-            categories[cat].push({ card, originalIdx });
-        });
-
-        for (const [catName, items] of Object.entries(categories)) {
-            const catHeader = document.createElement('div');
-            catHeader.style.cssText = "background: #e2e8f0; padding: 6px 10px; font-weight: 700; font-size: 0.85rem; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; margin-top: 5px;";
-            catHeader.innerHTML = `
-                <span>📁 ${catName} (${items.length} items)</span>
-                <button style="background:#ef4444; color:white; border:none; padding:2px 8px; border-radius:3px; cursor:pointer; font-size:0.75rem;" onclick="deleteCategory('${catName}')">Delete Category</button>
-            `;
-            manageListContainer.appendChild(catHeader);
-
-            items.forEach(({ card, originalIdx }) => {
-                const item = document.createElement('div');
-                item.className = 'manage-item';
-                item.innerHTML = `
-                    <input type="checkbox" class="question-checkbox" data-index="${originalIdx}">
-                    <div style="font-size:0.85rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:430px;">
-                        ${card.scenario}
-                    </div>
-                `;
-                manageListContainer.appendChild(item);
-            });
-        }
-    }
-
-    function toggleSelectAll(source) {
-        checkboxes = document.querySelectorAll('.question-checkbox');
-        checkboxes.forEach(cb => cb.checked = source.checked);
-    }
-
-    function deleteSelectedQuestions() {
-        let checkboxes = document.querySelectorAll('.question-checkbox:checked');
-        if (checkboxes.length === 0) {
-            alert("Please select at least one question to delete.");
-            return;
-        }
-
-        if (!confirm(`Delete ${checkboxes.length} selected questions?`)) return;
-
-        let indicesToDelete = Array.from(checkboxes).map(cb => parseInt(cb.getAttribute('data-index')));
-        let savedCards = JSON.parse(localStorage.getItem('custom_em_cards') || '[]');
+    <!-- Main Container -->
+    <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
         
-        let updatedCards = savedCards.filter((_, idx) => !indicesToDelete.includes(idx));
-        localStorage.setItem('custom_em_cards', JSON.stringify(updatedCards));
-        
-        document.getElementById('select-all-checkbox').checked = false;
-        renderManageList();
-    }
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-72 bg-white border-b md:border-b-0 md:border-r border-slate-300 p-4 flex flex-col shrink-0 shadow-xs">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Pathology Modules</h2>
+            <nav class="flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
+                <button onclick="switchTab('anatomy')" id="nav-anatomy" class="shrink-0 md:w-full text-left px-3 py-2.5 rounded-lg bg-blue-700 text-white font-semibold text-xs transition shadow-xs">1. Normal Baseline Anatomy</button>
+                <button onclick="switchTab('effusion')" id="nav-effusion" class="shrink-0 md:w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-100 text-slate-700 font-medium text-xs transition">2. Pleural Effusion (Transudate/Exudate)</button>
+                <button onclick="switchTab('pneumonia')" id="nav-pneumonia" class="shrink-0 md:w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-100 text-slate-700 font-medium text-xs transition">3. Lobar Pneumonia & Silhouette Sign</button>
+                <button onclick="switchTab('edema')" id="nav-edema" class="shrink-0 md:w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-100 text-slate-700 font-medium text-xs transition">4. Hydrostatic Pulmonary Edema</button>
+            </nav>
+        </aside>
 
-    function deleteCategory(catName) {
-        if (!confirm(`Delete ALL questions under category "${catName}"?`)) return;
-        let savedCards = JSON.parse(localStorage.getItem('custom_em_cards') || '[]');
-        
-        let updatedCards = savedCards.filter(card => card.category !== catName);
-        localStorage.setItem('custom_em_cards', JSON.stringify(updatedCards));
-        renderManageList();
-    }
-
-    // Easy backup feature to share questions between computer and phone!
-    function exportQuestionsFile() {
-        let savedCards = localStorage.getItem('custom_em_cards') || '[]';
-        let blob = new Blob([savedCards], {type: "application/json"});
-        let url = URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        a.href = url;
-        a.download = "em_review_questions_backup.json";
-        a.click();
-    }
-
-    function toggleLecture() {
-        if (lectureContentEl.classList.contains('expanded')) {
-            lectureContentEl.classList.remove('expanded');
-            lectureToggleBtn.innerText = "📖 Expand Lecture Notes";
-        } else {
-            lectureContentEl.classList.add('expanded');
-            lectureToggleBtn.innerText = "📖 Collapse Lecture Notes";
-        }
-    }
-
-    function importQuestions() {
-        const rawText = document.getElementById('json-input').value.trim();
-        if (!rawText) return;
-
-        try {
-            let cleaned = rawText.replace(/```json/g, '').replace(/```javascript/g, '').replace(/```/g, '').trim();
-            cleaned = cleaned.replace(/,\s*([\]}])/g, '$1');
-            let newBatch = JSON.parse(cleaned);
-
-            if (Array.isArray(newBatch)) {
-                let existingSaved = JSON.parse(localStorage.getItem('custom_em_cards') || '[]');
-                let combinedSaved = existingSaved.concat(newBatch);
-                localStorage.setItem('custom_em_cards', JSON.stringify(combinedSaved));
+        <!-- Main Content Area -->
+        <main class="flex-1 p-4 md:p-6 overflow-y-auto flex flex-col items-center">
+            <div class="max-w-4xl w-full bg-white border border-slate-300 rounded-xl p-5 md:p-8 shadow-sm">
                 
-                activeMasterCards = loadQuestionBank();
-                initTopicMenu();
-                closeAddModal();
-                document.getElementById('json-input').value = '';
-                alert(`Successfully imported ${newBatch.length} new questions!`);
+                <!-- MODULE 1: NORMAL CHEST ANATOMY -->
+                <div id="section-anatomy">
+                    <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 pb-3">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900 mb-0.5">Module 1: Normal Chest Radiograph (PA View)</h2>
+                            <p class="text-slate-600 text-xs">Systematic anatomical breakdown and high-yield physiological landmarks.</p>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button onclick="toggleInvert('xray-img', this)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded border border-slate-300 transition">🌓 Invert</button>
+                            <button onclick="toggleMagnifier('container-anatomy', 'xray-img', 'lens-anatomy', this)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded border border-slate-300 transition">🔍 Magnifier: OFF</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        <div class="lg:col-span-6 flex flex-col items-center">
+                            <div id="container-anatomy" class="relative bg-black rounded-lg overflow-hidden shadow border border-slate-400 w-full max-w-sm cursor-crosshair">
+                                <img id="xray-img" src="xray.jpg" alt="Normal Chest X-Ray" class="w-full h-auto object-contain block mx-auto">
+                                <div id="lens-anatomy" class="lens-box"></div>
+
+                                <button onclick="showDetail('anatomy', 'airway')" class="absolute hotspot-pin top-[15%] left-[48%] -translate-x-1/2 -translate-y-1/2 bg-blue-700 hover:bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shadow border-2 border-white transition cursor-pointer">1</button>
+                                <button onclick="showDetail('anatomy', 'bones')" class="absolute hotspot-pin top-[20%] left-[28%] -translate-x-1/2 -translate-y-1/2 bg-blue-700 hover:bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shadow border-2 border-white transition cursor-pointer">2</button>
+                                <button onclick="showDetail('anatomy', 'cardiac')" class="absolute hotspot-pin top-[52%] left-[52%] -translate-x-1/2 -translate-y-1/2 bg-blue-700 hover:bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shadow border-2 border-white transition cursor-pointer">3</button>
+                                <button onclick="showDetail('anatomy', 'diaphragm')" class="absolute hotspot-pin top-[78%] left-[45%] -translate-x-1/2 -translate-y-1/2 bg-blue-700 hover:bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shadow border-2 border-white transition cursor-pointer">4</button>
+                                <button onclick="showDetail('anatomy', 'fields')" class="absolute hotspot-pin top-[45%] left-[72%] -translate-x-1/2 -translate-y-1/2 bg-blue-700 hover:bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shadow border-2 border-white transition cursor-pointer">5</button>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-1.5 text-center">Standard PA Posteroanterior Projection[cite: 1, 3]</p>
+                        </div>
+
+                        <div class="lg:col-span-6 flex flex-col space-y-3">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Anatomical Checklist</h3>
+                            <div class="grid grid-cols-1 gap-1.5">
+                                <button onclick="showDetail('anatomy', 'airway')" id="btn-anatomy-airway" class="p-2 text-left text-xs font-medium rounded border border-slate-200 bg-slate-50 hover:bg-blue-50 transition text-slate-800 flex justify-between"><span>🫁 1. Trachea & Carina</span><span class="text-[10px] text-slate-500">Pin 1</span></button>
+                                <button onclick="showDetail('anatomy', 'bones')" id="btn-anatomy-bones" class="p-2 text-left text-xs font-medium rounded border border-slate-200 bg-slate-50 hover:bg-blue-50 transition text-slate-800 flex justify-between"><span>🦴 2. Clavicles & Thoracic Cage</span><span class="text-[10px] text-slate-500">Pin 2</span></button>
+                                <button onclick="showDetail('anatomy', 'cardiac')" id="btn-anatomy-cardiac" class="p-2 text-left text-xs font-medium rounded border border-slate-200 bg-slate-50 hover:bg-blue-50 transition text-slate-800 flex justify-between"><span>❤️ 3. Cardiac Silhouette & CTR</span><span class="text-[10px] text-slate-500">Pin 3</span></button>
+                                <button onclick="showDetail('anatomy', 'diaphragm')" id="btn-anatomy-diaphragm" class="p-2 text-left text-xs font-medium rounded border border-slate-200 bg-slate-50 hover:bg-blue-50 transition text-slate-800 flex justify-between"><span>📐 4. Hemidiaphragms & Sulci</span><span class="text-[10px] text-slate-500">Pin 4</span></button>
+                                <button onclick="showDetail('anatomy', 'fields')" id="btn-anatomy-fields" class="p-2 text-left text-xs font-medium rounded border border-slate-200 bg-slate-50 hover:bg-blue-50 transition text-slate-800 flex justify-between"><span>🌬️ 5. Pulmonary Vascular Tree</span><span class="text-[10px] text-slate-500">Pin 5</span></button>
+                            </div>
+
+                            <div id="box-anatomy" class="bg-blue-50 border border-blue-200 rounded-lg p-3.5">
+                                <h4 id="title-anatomy" class="font-bold text-blue-900 text-xs mb-1">Select an anatomical landmark above</h4>
+                                <p id="desc-anatomy" class="text-[11px] text-slate-700 leading-relaxed">Click any pin or list item to review high-yield medical school anatomy and diagnostic pearls.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODULE 2: PLEURAL EFFUSION -->
+                <div id="section-effusion" class="hidden">
+                    <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 pb-3">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900 mb-0.5">Module 2: Pleural Effusion (Transudate vs. Exudate)</h2>
+                            <p class="text-slate-600 text-xs">Pathophysiology of pleural space accumulation and differential diagnosis.</p>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button onclick="toggleInvert('effusion-img', this)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded border border-slate-300 transition">🌓 Invert</button>
+                            <button onclick="toggleMagnifier('container-effusion', 'effusion-img', 'lens-effusion', this)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded border border-slate-300 transition">🔍 Magnifier: OFF</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        <div class="lg:col-span-6 flex flex-col items-center">
+                            <div id="container-effusion" class="relative bg-black rounded-lg overflow-hidden shadow border border-slate-400 w-full max-w-sm cursor-crosshair">
+                                <img id="effusion-img" src="effusion.jpg" alt="Pleural Effusion X-Ray" class="w-full h-auto object-contain block mx-auto">
+                                <div id="lens-effusion" class="lens-box"></div>
+
+                                <button onclick="showDetail('effusion', 'blunt')" class="absolute hotspot-pin top-[75%] left-[78%] -translate-x-1/2 -translate-y-1/2 bg-rose-700 hover:bg-rose-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shadow border-2 border-white transition cursor-pointer">1</button>
+                                <button onclick="showDetail('effusion', 'meniscus')" class="absolute hotspot-pin top-[55%] left-[70%] -translate-x-1/2 -translate-y-1/2 bg-rose-700 hover:bg-rose-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shadow border-2 border-white transition cursor-pointer">2</button>
+                                <button onclick="showDetail('effusion', 'dense')" class="absolute hotspot-pin top-[70%] left-[60%] -translate-x-1/2 -translate-y-1/2 bg-rose-700 hover:bg-rose-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shadow border-2 border-white transition cursor-pointer">3</button>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-1.5 text-center">Massive Right Pleural Effusion[cite: 4]</p>
+                        </div>
+
+                        <div class="lg:col-span-6 flex flex-col space-y-3">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Radiological & Clinical Analysis</h3>
+                            <div class="grid grid-cols-1 gap-1.5">
+                                <button onclick="showDetail('effusion', 'blunt')" id="btn-effusion-blunt" class="p-2 text-left text-xs font-medium rounded border border-slate-200 bg-slate-50 hover:bg-rose-50 transition text-slate-800 flex justify-between"><span>🌊 1. Costophrenic Angle Blunting</span><span class="text-[10px] text-slate-500">Pin 1</span></button>
+                                <button onclick="showDetail('effusion', 'meniscus')" id="btn-effusion-meniscus" class="p-2 text-left text-xs font-medium rounded border border-slate-200 bg-slate-50 hover:bg-rose-50 transition text-slate-800 flex justify-between"><span>📈 2. Pleural Meniscus Sign</span><span class="text-[10px] text-slate-500">Pin 2</span></button>
+                                <button onclick="showDetail('effusion', 'dense')" id="btn-effusion-dense" class="p-2 text-left text-xs font-medium rounded border border-slate-200 bg-slate-50 hover:bg-rose-50 transition text-slate-800 flex justify-between"><span>⚪ 3. Homogeneous Hemithorax Opacification</span><span class="text-[10px] text-slate-500">Pin 3</span></button>
+                            </div>
+
+                            <div id="box-effusion" class="bg-rose-50 border border-rose-200 rounded-lg p-3.5">
+                                <h4 id="title-effusion" class="font-bold text-rose-900 text-xs mb-1">Select a pin above</h4>
+                                <p id="desc-effusion" class="text-[11px] text-slate-700 leading-relaxed">Click any pin or list item to examine pleural fluid biomechanics and Light's criteria.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODULE 3: PNEUMONIA / CONSOLIDATION -->
+                <div id="section-pneumonia" class="hidden">
+                    <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 pb-3">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900 mb-0.5">Module 3: Lobar Pneumonia & Silhouette Sign</h2>
+                            <p class="text-slate-600 text-xs">Alveolar exudate mechanics, air bronchograms, and anatomical localization.</p>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button onclick="toggleInvert('pneumonia-img', this)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded border border-slate-300 transition">🌓 Invert</button>
+                            <button onclick="toggleMagnifier('container-pneumonia', 'pneumonia-img', 'lens-pneumonia', this)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded border border-slate-300 transition">🔍 Magnifier: OFF</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        <div class="lg:col-span-6 flex flex-col items-center">
+                            <div id="container-pneumonia" class="relative bg-black rounded-lg overflow-hidden shadow border border-slate-400 w-full max-w-sm cursor-crosshair">
+                                <img id="pneumonia-img" src="pneumonia.jpg" alt="Pneumonia X-Ray" class="w-full h-auto object-contain block mx-auto">
+                                <div id="lens-pneumonia" class="lens-box"></div>
+
+                                <button onclick="showDetail('pneumonia', 'patch')" class="absolute hotspot-pin top-[72%] left-[30%] -translate-x-1/2 -translate-y-1/2 bg-amber-600 hover:bg-amber-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shadow border-2 border-white transition cursor-pointer">1</button>
+                                <button onclick="showDetail('pneumonia', 'broncho')" class="absolute hotspot-pin top-[65%] left-[25%] -translate-x-1/2 -translate-y-1/2 bg-amber-600 hover:bg-amber-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shadow border-2 border-white transition cursor-pointer">2</button>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-1.5 text-center">Right Lower Lobe Consolidation[cite: 5]</p>
+                        </div>
+
+                        <div class="lg:col-span-6 flex flex-col space-y-3">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Radiological & Clinical Analysis</h3>
+                            <div class="grid grid-cols-1 gap-1.5">
+                                <button onclick="showDetail('pneumonia', 'patch')" id="btn-pneumonia-patch" class="p-2 text-left text-xs font-medium rounded border border-slate-200 bg-slate-50 hover:bg-amber-50 transition text-slate-800 flex justify-between"><span>☁️ 1. Alveolar Consolidation & Silhouette Sign</span><span class="text-[10px] text-slate-500">Pin 1</span></button>
+                                <button onclick="showDetail('pneumonia', 'broncho')" id="btn-pneumonia-broncho" class="p-2 text-left text-xs font-medium rounded border border-slate-200 bg-slate-50 hover:bg-amber-50 transition text-slate-800 flex justify-between"><span>🔲 2. Air Bronchogram Sign</span><span class="text-[10px] text-slate-500">Pin 2</span></button>
+                            </div>
+
+                            <div id="box-pneumonia" class="bg-amber-50 border border-amber-200 rounded-lg p-3.5">
+                                <h4 id="title-pneumonia" class="font-bold text-amber-900 text-xs mb-1">Select a pin above</h4>
+                                <p id="desc-pneumonia" class="text-[11px] text-slate-700 leading-relaxed">Click any pin or list item to examine pulmonary pathology and differential diagnoses.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODULE 4: PULMONARY EDEMA -->
+                <div id="section-edema" class="hidden">
+                    <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 pb-3">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900 mb-0.5">Module 4: Hydrostatic Pulmonary Edema</h2>
+                            <p class="text-slate-600 text-xs">Starling forces, elevated left ventricular end-diastolic pressure, and CHF signs.</p>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button onclick="toggleInvert('edema-img', this)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded border border-slate-300 transition">🌓 Invert</button>
+                            <button onclick="toggleMagnifier('container-edema', 'edema-img', 'lens-edema', this)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded border border-slate-300 transition">🔍 Magnifier: OFF</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                        <div class="lg:col-span-6 flex flex-col items-center">
+                            <div id="container-edema" class="relative bg-black rounded-lg overflow-hidden shadow border border-slate-400 w-full max-w-sm cursor-crosshair">
+                                <img id="edema-img" src="edema.jpg" alt="Pulmonary Edema X-Ray" class="w-full h-auto object-contain block mx-auto">
+                                <div id="lens-edema" class="lens-box"></div>
+
+                                <button onclick="showDetail('edema', 'cardiac')" class="absolute hotspot-pin top-[55%] left-[52%] -translate-x-1/2 -translate-y-1/2 bg-blue-700 hover:bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shadow border-2 border-white transition cursor-pointer">1</button>
+                                <button onclick="showDetail('edema', 'batwing')" class="absolute hotspot-pin top-[45%] left-[48%] -translate-x-1/2 -translate-y-1/2 bg-blue-700 hover:bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shadow border-2 border-white transition cursor-pointer">2</button>
+                                <button onclick="showDetail('edema', 'vessels')" class="absolute hotspot-pin top-[30%] left-[65%] -translate-x-1/2 -translate-y-1/2 bg-blue-700 hover:bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shadow border-2 border-white transition cursor-pointer">3</button>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-1.5 text-center">Bilateral Alveolar Edema & Cardiomegaly[cite: 6]</p>
+                        </div>
+
+                        <div class="lg:col-span-6 flex flex-col space-y-3">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Radiological & Clinical Analysis</h3>
+                            <div class="grid grid-cols-1 gap-1.5">
+                                <button onclick="showDetail('edema', 'cardiac')" id="btn-edema-cardiac" class="p-2 text-left text-xs font-medium rounded border border-slate-200 bg-slate-50 hover:bg-blue-50 transition text-slate-800 flex justify-between"><span>❤️ 1. Cardiomegaly (CTR &gt; 0.5)</span><span class="text-[10px] text-slate-500">Pin 1</span></button>
+                                <button onclick="showDetail('edema', 'batwing')" id="btn-edema-batwing" class="p-2 text-left text-xs font-medium rounded border border-slate-200 bg-slate-50 hover:bg-blue-50 transition text-slate-800 flex justify-between"><span>🦇 2. Perihilar Bat-Wing Distribution</span><span class="text-[10px] text-slate-500">Pin 2</span></button>
+                                <button onclick="showDetail('edema', 'vessels')" id="btn-edema-vessels" class="p-2 text-left text-xs font-medium rounded border border-slate-200 bg-slate-50 hover:bg-blue-50 transition text-slate-800 flex justify-between"><span>⬆️ 3. Cephalization of Pulmonary Veins</span><span class="text-[10px] text-slate-500">Pin 3</span></button>
+                            </div>
+
+                            <div id="box-edema" class="bg-blue-50 border border-blue-200 rounded-lg p-3.5">
+                                <h4 id="title-edema" class="font-bold text-blue-900 text-xs mb-1">Select a pin above</h4>
+                                <p id="desc-edema" class="text-[11px] text-slate-700 leading-relaxed">Click any pin or list item to examine hydrostatic pressure dynamics and ARDS vs. CHF differentials.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+
+    <!-- JavaScript Logic (Medical Tier) -->
+    <script>
+        const detailsData = {
+            anatomy: {
+                airway: { title: "1. Trachea & Carina", text: "• Anatomical Landmark: Central lucent column supported by horseshoe-shaped cartilage rings. Bifurcates at the carina (level of T4-T5 / sternal angle).\n• Radiographic Assessment: Must be strictly midline. Deviation indicates mass effect (tension pneumothorax pushing away; atelectasis or massive fibrosis pulling toward).\n• Clinical Correlation: Right main bronchus is wider, shorter, and more vertical than the left, making it the primary site for foreign body aspiration or malpositioned endotracheal tubes." },
+                bones: { title: "2. Thoracic Cage & Clavicles", text: "• Anatomical Landmark: Clavicles, ribs (posterior counting is more reliable; 10 posterior ribs visualized above diaphragm indicates adequate inspiration), and thoracic vertebrae.\n• Radiographic Assessment: Examine symmetry to rule out patient rotation. Examine cortical continuity for acute rib fractures or lytic/blastic lesions.\n• Clinical Correlation: Rib fractures compromise chest wall mechanics, leading to splinting, hypoventilation, and secondary atelectasis." },
+                cardiac: { title: "3. Cardiac Silhouette & Mediastinum", text: "• Anatomical Landmark: Right border formed by SVC and right atrium; left border formed by aortic arch, pulmonary artery trunk, and left ventricle.\n• Radiographic Assessment: Cardiothoracic Ratio (CTR) = max horizontal cardiac width divided by maximum internal thoracic diameter. Normal is < 0.5 on a standard PA view.\n• Clinical Correlation: CTR > 0.5 suggests cardiomegaly, pericardial effusion, or technical artifact (AP portable projection causing artificial magnification)." },
+                diaphragm: { title: "4. Hemidiaphragms & Sulci", text: "• Anatomical Landmark: Dome-shaped muscle partitions. Right hemidiaphragm sits 1-2 cm higher than the left due to the anatomical liver dome underneath.\n• Radiographic Assessment: Costophrenic and cardiophrenic angles must be sharp and acute (V-shaped).\n• Clinical Correlation: Blunting of costophrenic angles is the earliest radiographic sign of free pleural fluid accumulation (requires ~200 mL on PA view)." },
+                fields: { title: "5. Pulmonary Vascular Tree & Zones", text: "• Anatomical Landmark: Divided into upper, middle, and lower lung zones. Pulmonary arteries and veins branch symmetrically from the hila.\n• Radiographic Assessment: Normal vascular markings taper progressively toward the periphery. Peripheral thirds should be devoid of prominent markings.\n• Clinical Correlation: Prominent upper zone vessels (cephalization) indicate elevated pulmonary venous pressure, whereas peripheral wedge-shaped opacities suggest pulmonary infarction (embolism)." }
+            },
+            effusion: {
+                blunt: { title: "1. Costophrenic Angle Blunting", text: "• Pathophysiology: As fluid collects in the dependent pleural space, gravity pulls it into the posterior and lateral costophrenic sulci first.\n• Radiographic Criteria: Obliteration of the sharp acute angle. On an upright PA radiograph, blunting requires approximately 200 mL of fluid (lateral decubitus view can detect as little as 5 mL).\n• Differential Diagnosis / Clinical Pearls: Differentiate between true free-flowing effusion and pleural thickening or scarring via lateral decubitus films or chest ultrasound." },
+                meniscus: { title: "2. Pleural Meniscus Sign", text: "• Pathophysiology: The interaction between surface tension, lung elasticity, and fluid cohesion causes fluid to creep up the lateral chest wall, forming a concave upper margin (meniscus).\n• Radiographic Criteria: Higher at the lateral chest wall and sloping downward toward the mediastinum.\n• Differential Diagnosis / Clinical Pearls: Absence of a meniscus (e.g., flat upper border) points toward a hydropneumothorax (air-fluid level) or loculated empyema." },
+                dense: { title: "3. Homogeneous Hemithorax Opacification", text: "• Pathophysiology: Massive accumulation of fluid filling the entire pleural cavity, compressing the underlying pulmonary parenchyma.\n• Radiographic Criteria: Complete whiteout of one hemithorax.\n• Differential Diagnosis / Clinical Pearls: Crucial distinction: If the trachea and mediastinum are shifted *away* from the opacification, it's a massive effusion or large mass. If shifted *toward* the opacification, it's total lung collapse (atelectasis) or post-pneumonectomy." }
+            },
+            pneumonia: {
+                patch: { title: "1. Alveolar Consolidation & Silhouette Sign", text: "• Pathophysiology: Alveolar airspaces are replaced by inflammatory exudates, pus, red blood cells, or edema fluid (lobular or segmental distribution).\n• Radiographic Criteria: Fluffy, ill-defined opacities. The **Silhouette Sign** occurs when two structures of the same radiographic density are in direct anatomical contact, erasing their distinct border (e.g., right middle lobe consolidation obliterates the right heart border).\n• Differential Diagnosis / Clinical Pearls: Exclude malignancy (bronchioloalveolar carcinoma / adenocarcinoma in situ), pulmonary infarction, and pulmonary hemorrhage." },
+                broncho: { title: "2. Air Bronchogram Sign", text: "• Pathophysiology: Patent, air-filled intrapulmonary bronchi become visible against the surrounding opaque, consolidated lung parenchyma.\n• Radiographic Criteria: Linear branching lucencies within an area of opacification.\n• Differential Diagnosis / Clinical Pearls: Highly specific for *alveolar* disease (pneumonia, pulmonary edema, ARDS). Its absence points toward airway obstruction (atelectasis) or interstitial processes." }
+            },
+            edema: {
+                cardiac: { title: "1. Cardiomegaly (CTR > 0.5)", text: "• Pathophysiology: Chronic ventricular volume or pressure overload resulting in myocardial remodeling and chamber dilatation.\n• Radiographic Criteria: Cardiothoracic ratio exceeding 50% on a PA view.\n• Differential Diagnosis / Clinical Pearls: In acute flash pulmonary edema (e.g., acute mitral regurgitation or hypertensive crisis), the heart size may paradoxically appear normal because the onset is too rapid for chamber dilation to manifest." },
+                batwing: { title: "2. Perihilar Bat-Wing Distribution", text: "• Pathophysiology: Hydrostatic pressure in pulmonary capillaries exceeds oncotic pressure (Starling forces disruption), driving fluid rapidly into the perihilar interstitium and alveolar spaces.\n• Radiographic Criteria: Symmetrical, bilateral alveolar opacities radiating outward from the hila with sparing of the extreme peripheral lung zones.\n• Differential Diagnosis / Clinical Pearls: Distinguish from non-cardiogenic pulmonary edema (ARDS), which typically shows peripheral sparing, normal heart size, and lack of pleural effusions." },
+                vessels: { title: "3. Cephalization of Pulmonary Veins", text: "• Pathophysiology: Elevated left atrial pressure (> 12-18 mmHg) recruits and dilates apical pulmonary vessels due to basal hypoxic vasoconstriction and gravitational gradients.\n• Radiographic Criteria: Prominent vessels in the upper lung zones equal to or larger in caliber than lower zone vessels.\n• Differential Diagnosis / Clinical Pearls: Earliest radiographic sign of elevated left heart filling pressure before overt alveolar flooding occurs." }
+            }
+        };
+
+        function showDetail(module, key) {
+            document.querySelectorAll(`[id^="btn-${module}-"]`).forEach(btn => {
+                btn.classList.remove('bg-blue-100', 'bg-rose-100', 'bg-amber-100', 'border-blue-300', 'border-rose-300', 'border-amber-300');
+                btn.classList.add('bg-slate-50');
+            });
+            
+            const activeBtn = document.getElementById(`btn-${module}-${key}`);
+            if(activeBtn) {
+                activeBtn.classList.remove('bg-slate-50');
+                if(module === 'anatomy') activeBtn.classList.add('bg-blue-100', 'border-blue-300');
+                if(module === 'effusion') activeBtn.classList.add('bg-rose-100', 'border-rose-300');
+                if(module === 'pneumonia') activeBtn.classList.add('bg-amber-100', 'border-amber-300');
+                if(module === 'edema') activeBtn.classList.add('bg-blue-100', 'border-blue-300');
+            }
+
+            const data = detailsData[module][key];
+            document.getElementById(`title-${module}`).innerText = data.title;
+            document.getElementById(`desc-${module}`).innerHTML = data.text.replace(/\n/g, '<br>');
+        }
+
+        function switchTab(tab) {
+            const sections = ['section-anatomy', 'section-effusion', 'section-pneumonia', 'section-edema'];
+            const navs = ['nav-anatomy', 'nav-effusion', 'nav-pneumonia', 'nav-edema'];
+
+            sections.forEach(s => document.getElementById(s).classList.add('hidden'));
+            navs.forEach(n => {
+                const el = document.getElementById(n);
+                el.className = "shrink-0 md:w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-100 text-slate-700 font-medium text-xs transition";
+            });
+
+            document.getElementById('section-' + tab).classList.remove('hidden');
+            document.getElementById('nav-' + tab).className = "shrink-0 md:w-full text-left px-3 py-2.5 rounded-lg bg-blue-700 text-white font-semibold text-xs transition shadow-xs";
+        }
+
+        function toggleInvert(imgId, btn) {
+            const img = document.getElementById(imgId);
+            img.classList.toggle('inverted');
+            btn.classList.toggle('bg-slate-800');
+            btn.classList.toggle('text-white');
+        }
+
+        function toggleMagnifier(containerId, imgId, lensId, btn) {
+            const container = document.getElementById(containerId);
+            const img = document.getElementById(imgId);
+            const lens = document.getElementById(lensId);
+
+            let isActive = lens.style.display === 'block';
+            if (!isActive) {
+                btn.classList.add('bg-blue-700', 'text-white');
+                btn.innerText = "🔍 Magnifier: ON";
+                lens.style.display = 'block';
+                lens.style.backgroundImage = `url('${img.src}')`;
+                container.onmousemove = function(e) { moveMagnifier(e, img, lens); };
+                container.onmouseleave = function() { lens.style.display = 'none'; };
             } else {
-                alert("Error: Pasted text must be an array [ { ... } ].");
-            }
-        } catch(err) {
-            alert("Parsing Error: " + err.message);
-        }
-    }
-
-    function toggleModeConfig() {
-        const mode = document.getElementById('mode-select').value;
-        const durationRow = document.getElementById('duration-row');
-        durationRow.style.display = mode === 'pomodoro' ? 'none' : 'flex';
-    }
-
-    function startTimer() {
-        if (timerInterval) clearInterval(timerInterval);
-
-        const mode = document.getElementById('mode-select').value;
-        if (mode === 'pomodoro') {
-            timeLeft = 25 * 60;
-            isPomodoroBreak = false;
-            document.getElementById('timer-label').innerText = "🍅 Focus";
-        } else {
-            const mins = parseInt(document.getElementById('custom-duration').value) || 45;
-            timeLeft = mins * 60;
-            document.getElementById('timer-label').innerText = "Time Remaining";
-        }
-
-        timerInterval = setInterval(() => {
-            if (timeLeft > 0) {
-                timeLeft--;
-            } else {
-                const mode = document.getElementById('mode-select').value;
-                if (mode === 'pomodoro') {
-                    isPomodoroBreak = !isPomodoroBreak;
-                    timeLeft = isPomodoroBreak ? 5 * 60 : 25 * 60;
-                    document.getElementById('timer-label').innerText = isPomodoroBreak ? "☕ Break Time!" : "🍅 Focus";
-                    alert(isPomodoroBreak ? "Great focus! Take a 5-minute break." : "Break over! Time to focus.");
-                }
-            }
-
-            let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-            let s = (timeLeft % 60).toString().padStart(2, '0');
-            document.getElementById('timer').innerText = `00:${m}:${s}`;
-        }, 1000);
-    }
-
-    function initTopicMenu() {
-        activeMasterCards = loadQuestionBank();
-        const counts = {};
-        activeMasterCards.forEach(c => counts[c.category] = (counts[c.category] || 0) + 1);
-
-        topicGrid.innerHTML = '';
-        
-        if (activeMasterCards.length === 0) {
-            topicGrid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:30px; color:var(--text-muted);"><h3>No questions loaded!</h3><p>Click "Add Questions" above.</p></div>';
-            return;
-        }
-
-        let allCard = document.createElement('div');
-        allCard.className = 'topic-card all-topics-card';
-        allCard.innerHTML = `<span class="topic-card-title">🌟 Comprehensive Exam (All Topics)</span><span class="topic-card-badge">${activeMasterCards.length} Questions</span>`;
-        allCard.onclick = () => startExam("All");
-        topicGrid.appendChild(allCard);
-
-        for (const [top, cnt] of Object.entries(counts)) {
-            let card = document.createElement('div');
-            card.className = 'topic-card';
-            card.innerHTML = `<span class="topic-card-title">📚 ${top}</span><span class="topic-card-badge">${cnt} Questions</span>`;
-            card.onclick = () => startExam(top);
-            topicGrid.appendChild(card);
-        }
-    }
-
-    function startExam(topic) {
-        currentCards = topic === "All" ? [...activeMasterCards] : activeMasterCards.filter(c => c.category === topic);
-        if (currentCards.length === 0) {
-            alert("No questions found in this category.");
-            return;
-        }
-        currentIndex = 0;
-        answeredState = {};
-        
-        topicScreen.style.display = 'none';
-        examScreen.style.display = 'flex';
-
-        totalCountEl.innerText = currentCards.length;
-        startTimer();
-        buildPalette();
-        renderCard();
-    }
-
-    function returnToMenu() {
-        if (timerInterval) clearInterval(timerInterval);
-        examScreen.style.display = 'none';
-        topicScreen.style.display = 'flex';
-        initTopicMenu();
-    }
-
-    function buildPalette() {
-        palettePills.innerHTML = '';
-        currentCards.forEach((c, idx) => {
-            const pill = document.createElement('div');
-            pill.className = `pill ${idx === currentIndex ? 'active' : ''} ${answeredState[idx] !== undefined ? 'attempted' : ''}`;
-            pill.innerText = idx + 1;
-            pill.onclick = () => { currentIndex = idx; renderCard(); };
-            palettePills.appendChild(pill);
-        });
-        attemptedCountEl.innerText = Object.keys(answeredState).length;
-    }
-
-    function renderCard() {
-        const card = currentCards[currentIndex];
-        tempSelectedSata = [];
-
-        questionNumberEl.innerText = `Question ${currentIndex + 1} of ${currentCards.length}`;
-        categoryLabelEl.innerText = card.category;
-        scenarioEl.innerText = card.scenario;
-        rationaleTextEl.innerHTML = card.explanation;
-        
-        lectureContentEl.innerHTML = card.lecture || "<em>No deep-dive lecture notes provided for this item.</em>";
-        lectureContentEl.classList.remove('expanded');
-        lectureToggleBtn.innerText = "📖 Expand Lecture Notes";
-
-        if (card.type === "SATA") {
-            typeBadgeEl.innerText = "SATA";
-            typeBadgeEl.style.background = "var(--sata-badge)";
-        } else {
-            typeBadgeEl.innerText = "MCQ";
-            typeBadgeEl.style.background = "var(--primary)";
-        }
-
-        optionsListEl.innerHTML = '';
-        card.options.forEach((opt, idx) => {
-            const li = document.createElement('li');
-            li.className = 'option-item';
-            li.innerText = opt;
-
-            if (answeredState[currentIndex] !== undefined) {
-                li.classList.add('disabled');
-                const st = answeredState[currentIndex];
-                if (card.type === "SATA") {
-                    if (card.correct.includes(idx)) li.classList.add('correct');
-                    else if (st.userSelection.includes(idx)) li.classList.add('incorrect');
-                } else {
-                    if (idx === card.correct) li.classList.add('correct');
-                    else if (idx === st.userSelection) li.classList.add('incorrect');
-                }
-            } else {
-                li.onclick = () => handleOptionClick(idx, li, card);
-            }
-            optionsListEl.appendChild(li);
-        });
-
-        submitSataBtn.style.display = (card.type === "SATA" && answeredState[currentIndex] === undefined) ? 'block' : 'none';
-        if (answeredState[currentIndex] !== undefined) rationaleBoxEl.classList.add('visible');
-        else rationaleBoxEl.classList.remove('visible');
-
-        buildPalette();
-    }
-
-    function handleOptionClick(idx, el, card) {
-        if (answeredState[currentIndex] !== undefined) return;
-
-        if (card.type === "MCQ") {
-            answeredState[currentIndex] = { userSelection: idx };
-
-            const items = optionsListEl.children;
-            for (let i = 0; i < items.length; i++) {
-                items[i].classList.add('disabled');
-                if (i === card.correct) items[i].classList.add('correct');
-                else if (i === idx) items[i].classList.add('incorrect');
-            }
-            rationaleBoxEl.classList.add('visible');
-            buildPalette();
-        } else {
-            const pos = tempSelectedSata.indexOf(idx);
-            if (pos > -1) {
-                tempSelectedSata.splice(pos, 1);
-                el.classList.remove('selected');
-            } else {
-                tempSelectedSata.push(idx);
-                el.classList.add('selected');
+                btn.classList.remove('bg-blue-700', 'text-white');
+                btn.innerText = "🔍 Magnifier: OFF";
+                lens.style.display = 'none';
+                container.onmousemove = null;
             }
         }
-    }
 
-    function submitSata() {
-        const card = currentCards[currentIndex];
-        if (answeredState[currentIndex] !== undefined || tempSelectedSata.length === 0) return;
-
-        answeredState[currentIndex] = { userSelection: [...tempSelectedSata] };
-        submitSataBtn.style.display = 'none';
-
-        const items = optionsListEl.children;
-        for (let i = 0; i < items.length; i++) {
-            items[i].classList.add('disabled');
-            items[i].classList.remove('selected');
-            if (card.correct.includes(i)) items[i].classList.add('correct');
-            else if (tempSelectedSata.includes(i)) items[i].classList.add('incorrect');
+        function moveMagnifier(e, img, lens) {
+            const pos = img.getBoundingClientRect();
+            const x = e.clientX - pos.left;
+            const y = e.clientY - pos.top;
+            if (x < 0 || x > pos.width || y < 0 || y > pos.height) {
+                lens.style.display = 'none';
+                return;
+            }
+            lens.style.display = 'block';
+            lens.style.left = (x - 65) + 'px';
+            lens.style.top = (y - 65) + 'px';
+            lens.style.backgroundSize = (pos.width * 2.8) + 'px ' + (pos.height * 2.8) + 'px';
+            lens.style.backgroundPosition = `-${x * 2.8 - 65}px -${y * 2.8 - 65}px`;
         }
-        rationaleBoxEl.classList.add('visible');
-        buildPalette();
-    }
-
-    function nextCard() {
-        currentIndex = (currentIndex + 1) % currentCards.length;
-        renderCard();
-    }
-
-    function prevCard() {
-        currentIndex = (currentIndex - 1 + currentCards.length) % currentCards.length;
-        renderCard();
-    }
-
-    initTopicMenu();
-</script>
-
+    </script>
 </body>
 </html>
